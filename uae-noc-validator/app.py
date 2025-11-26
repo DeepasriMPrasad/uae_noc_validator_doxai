@@ -3999,6 +3999,12 @@ def load_schema_fields(tab_click, reset_click, custom_fields):
                 with open(SCHEMA_FILE_PATH, "w") as f:
                     json.dump(SCHEMA_DATA, f, indent=2)
                 print("Schema reset to defaults")
+                
+                # Clear the SAP DOX schema cache so schema will be re-created
+                dox_schema_cache = os.path.join(os.path.dirname(__file__), "output", "dox_schema.json")
+                if os.path.exists(dox_schema_cache):
+                    os.remove(dox_schema_cache)
+                    print("Cleared SAP DOX schema cache")
             
             # Load default config for field weights and mandatory fields
             default_config_path = os.path.join(os.path.dirname(__file__), "defaults", "config_default.json")
