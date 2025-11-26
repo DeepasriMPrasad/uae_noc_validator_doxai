@@ -1906,6 +1906,13 @@ dash_app.layout = html.Div([
                             ], className="feature-text")
                         ], className="feature-item"),
                         html.Div([
+                            html.Span(className="sap-icon sap-icon--parallel feature-icon"),
+                            html.Div([
+                                html.Strong("Parallel Processing"),
+                                html.P("Split into chunks for faster extraction")
+                            ], className="feature-text")
+                        ], className="feature-item"),
+                        html.Div([
                             html.Span(className="sap-icon sap-icon--ai feature-icon"),
                             html.Div([
                                 html.Strong("AI Extraction"),
