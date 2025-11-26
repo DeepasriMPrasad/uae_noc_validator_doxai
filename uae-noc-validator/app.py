@@ -1874,7 +1874,7 @@ dash_app.layout = html.Div([
             # ───────────────────────────────────────────────────────────────
             html.Details([
                 html.Summary([
-                    html.Span("", id="log-arrow", className="collapse-arrow"),
+                    html.Span(className="sap-icon sap-icon--slim-arrow-right collapse-arrow", id="log-arrow"),
                     html.Span(className="sap-icon sap-icon--log", style={"marginRight": "8px"}),
                     html.Span("PROCESSING LOGS"),
                     html.Span(id="log-status-badge", className="log-status-badge"),
@@ -1955,7 +1955,7 @@ dash_app.layout = html.Div([
             # ───────────────────────────────────────────────────────────────
             html.Details([
                 html.Summary([
-                    html.Span("", id="preview-arrow", className="collapse-arrow"),
+                    html.Span(className="sap-icon sap-icon--slim-arrow-right collapse-arrow", id="preview-arrow"),
                     html.Span(className="sap-icon sap-icon--search", style={"marginRight": "8px"}),
                     html.Span("DOCUMENT PREVIEW")
                 ], className="preview-summary"),
@@ -2082,11 +2082,12 @@ dash_app.layout = html.Div([
                 # ───────────────────────────────────────────────────────────────
                 html.Details([
                     html.Summary([
+                        html.Span(className="sap-icon sap-icon--slim-arrow-right collapse-arrow", id="json-arrow"),
                         html.Span(className="sap-icon sap-icon--document", style={"marginRight": "8px"}),
-                        "VIEW DOCUMENT EXTRACTION JSON"
-                    ], className="json-summary"),
+                        html.Span("VIEW DOCUMENT EXTRACTION JSON")
+                    ], className="preview-summary json-summary"),
                     html.Pre(id="json-output", className="json-output")
-                ], className="json-details", style={"display": "block" if CONFIG.get("ui", {}).get("show_raw_json", True) else "none"}),
+                ], className="preview-section json-details", style={"display": "block" if CONFIG.get("ui", {}).get("show_raw_json", True) else "none"}),
               
             ], id="results-container", style={"display": "none"}),
             

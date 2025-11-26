@@ -42,16 +42,23 @@ Preferred communication style: Simple, everyday language.
 - Professional processing animation with step-by-step progress indicators
 - All user-facing emojis replaced with SAP Fiori-style icon classes
 - SAP logo in header for enterprise branding
+- Welcome state on initial load with feature cards (replaces blank graphs/tables)
+- Collapsible sections with animated SAP arrow icons:
+  - Processing Logs section
+  - Document Preview section
+  - View Document Extraction JSON section
 - Schema Configuration screen with:
   - Mandatory field badges (orange "MANDATORY" tag)
   - Weight percentage display for each field
   - Add Field modal dialog with form inputs (field name, description, type, weight, mandatory checkbox)
   - Download Config button for exporting schema configuration as JSON
   - Edit and delete action buttons per field
+  - Reset to Defaults functionality (with cache cleanup)
 - Business Rules Configuration screen with:
   - Visual rule cards showing rule details
   - Add Rule modal dialog with dynamic form (rule type dropdown, conditional parameters)
   - Download Rules button for exporting validation rules as JSON
+  - Reset to Defaults functionality
 - Dashboard with:
   - Metrics cards (Total, Approved, Review, Rejected)
   - Document history list with clear all functionality

@@ -183,13 +183,12 @@ body {
     font-weight: 600 !important;
     font-size: 0.875rem !important;
     color: var(--sap-brand-blue) !important;
-    padding: 0.75rem !important;
+    padding: 0.5rem !important;
     border-radius: 4px !important;
     transition: background 0.2s ease !important;
     user-select: none;
     display: flex;
     align-items: center;
-    gap: 8px;
 }
 
 .log-summary:hover {
@@ -1039,16 +1038,29 @@ summary:hover {
 
 /* Collapsible arrow icon animation */
 .collapse-arrow {
-    display: inline-block;
-    transition: transform 0.2s ease;
-    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+    margin-right: 8px;
     color: var(--sap-brand-blue);
-    font-weight: bold;
+    font-size: 0.75rem;
+    width: 16px;
+    height: 16px;
 }
 
 /* Rotate arrow when details is open */
 details[open] .collapse-arrow {
     transform: rotate(90deg);
+}
+
+/* JSON details section */
+.json-details {
+    margin-top: 1.5rem;
+}
+
+.json-summary {
+    letter-spacing: 0.025em;
 }
 
 .preview-content {
