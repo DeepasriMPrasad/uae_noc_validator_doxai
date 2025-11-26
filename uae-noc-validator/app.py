@@ -2323,6 +2323,26 @@ dash_app.layout = html.Div([
                 ], id="clear-history-btn", className="sap-button sap-button--ghost sap-button--sm"),
             ], className="history-header"),
             
+            # Status Filter Buttons
+            html.Div([
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--list sap-icon--sm", style={"marginRight": "6px"}),
+                    "All"
+                ], id="filter-all", className="filter-btn filter-btn--active", n_clicks=0),
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--success sap-icon--sm", style={"marginRight": "6px"}),
+                    "Approved"
+                ], id="filter-approved", className="filter-btn filter-btn--approved", n_clicks=0),
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--warning sap-icon--sm", style={"marginRight": "6px"}),
+                    "Needs Review"
+                ], id="filter-review", className="filter-btn filter-btn--review", n_clicks=0),
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "6px"}),
+                    "Rejected"
+                ], id="filter-rejected", className="filter-btn filter-btn--rejected", n_clicks=0),
+            ], className="status-filters"),
+            
             # Search and Sort Controls
             html.Div([
                 html.Div([
@@ -2354,6 +2374,9 @@ dash_app.layout = html.Div([
                     ),
                 ], className="sort-container"),
             ], className="history-controls"),
+            
+            # Hidden store for active filter
+            dcc.Store(id="active-status-filter", data="all"),
             
             html.Div(id="document-history-list", children=[
                 html.Div([
@@ -4086,6 +4109,57 @@ def download_rules_config(n_clicks):
 # DASHBOARD TAB CALLBACKS
 # ═══════════════════════════════════════════════════════════════════════════
 
+# Callback to handle status filter button clicks
+@dash_app.callback(
+    [Output("active-status-filter", "data"),
+     Output("filter-all", "className"),
+     Output("filter-approved", "className"),
+     Output("filter-review", "className"),
+     Output("filter-rejected", "className")],
+    [Input("filter-all", "n_clicks"),
+     Input("filter-approved", "n_clicks"),
+     Input("filter-review", "n_clicks"),
+     Input("filter-rejected", "n_clicks")],
+    [State("active-status-filter", "data")],
+    prevent_initial_call=True
+)
+def update_status_filter(all_clicks, approved_clicks, review_clicks, rejected_clicks, current_filter):
+    """Update the active status filter when a filter button is clicked"""
+    ctx = callback_context
+    if not ctx.triggered:
+        return current_filter, "filter-btn filter-btn--active", "filter-btn filter-btn--approved", "filter-btn filter-btn--review", "filter-btn filter-btn--rejected"
+    
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    # Define base classes for each button
+    base_classes = {
+        "filter-all": "filter-btn",
+        "filter-approved": "filter-btn filter-btn--approved",
+        "filter-review": "filter-btn filter-btn--review",
+        "filter-rejected": "filter-btn filter-btn--rejected"
+    }
+    
+    # Determine active filter and update classes
+    filter_map = {
+        "filter-all": "all",
+        "filter-approved": "Approved",
+        "filter-review": "Needs Review",
+        "filter-rejected": "Rejected"
+    }
+    
+    active_filter = filter_map.get(trigger_id, "all")
+    
+    # Add active class to the clicked button
+    classes = [
+        base_classes["filter-all"] + (" filter-btn--active" if trigger_id == "filter-all" else ""),
+        base_classes["filter-approved"] + (" filter-btn--active" if trigger_id == "filter-approved" else ""),
+        base_classes["filter-review"] + (" filter-btn--active" if trigger_id == "filter-review" else ""),
+        base_classes["filter-rejected"] + (" filter-btn--active" if trigger_id == "filter-rejected" else ""),
+    ]
+    
+    return active_filter, classes[0], classes[1], classes[2], classes[3]
+
+
 @dash_app.callback(
     [Output("metric-total", "children"),
      Output("metric-approved", "children"),
@@ -4096,12 +4170,13 @@ def download_rules_config(n_clicks):
      Input("job-result-store", "data"),
      Input("clear-history-btn", "n_clicks"),
      Input("history-search", "value"),
-     Input("history-sort", "value")],
+     Input("history-sort", "value"),
+     Input("active-status-filter", "data")],
     [State("document-history", "data")],
     prevent_initial_call=True
 )
-def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, history_data):
-    """Update dashboard metrics and document history list with search/sort"""
+def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, status_filter, history_data):
+    """Update dashboard metrics and document history list with search/sort/filter"""
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
     
@@ -4133,11 +4208,15 @@ def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, his
             html.Div("Upload a document to get started", className="history-empty-subtext"),
         ], className="history-empty")
     else:
-        # Apply search filter
+        # Apply status filter first
         filtered_jobs = completed_jobs
+        if status_filter and status_filter != "all":
+            filtered_jobs = [j for j in completed_jobs if j.result.get("status") == status_filter]
+        
+        # Apply search filter
         if search_text:
             search_lower = search_text.lower()
-            filtered_jobs = [j for j in completed_jobs if search_lower in j.result.get("filename", "").lower() or 
+            filtered_jobs = [j for j in filtered_jobs if search_lower in j.result.get("filename", "").lower() or 
                              search_lower in j.result.get("status", "").lower()]
         
         # Apply sorting

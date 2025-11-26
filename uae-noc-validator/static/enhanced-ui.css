@@ -1182,6 +1182,74 @@
 }
 
 /* ====================================================================
+   Status Filter Buttons
+   ==================================================================== */
+.status-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 20px;
+    background: var(--sap-tile-bg);
+    color: var(--sap-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--sap-brand-blue);
+    color: var(--sap-brand-blue);
+    background: rgba(91, 127, 149, 0.05);
+}
+
+.filter-btn--active {
+    background: var(--sap-brand-blue) !important;
+    border-color: var(--sap-brand-blue) !important;
+    color: white !important;
+}
+
+.filter-btn--approved:hover,
+.filter-btn--approved.filter-btn--active {
+    border-color: #107e3e;
+}
+
+.filter-btn--approved.filter-btn--active {
+    background: #107e3e !important;
+}
+
+.filter-btn--review:hover,
+.filter-btn--review.filter-btn--active {
+    border-color: #b8860b;
+}
+
+.filter-btn--review.filter-btn--active {
+    background: #b8860b !important;
+}
+
+.filter-btn--rejected:hover,
+.filter-btn--rejected.filter-btn--active {
+    border-color: var(--sap-critical);
+}
+
+.filter-btn--rejected.filter-btn--active {
+    background: var(--sap-critical) !important;
+}
+
+.filter-btn .sap-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* ====================================================================
    Dashboard Search & Sort Controls
    ==================================================================== */
 .history-controls {
