@@ -2327,6 +2327,8 @@ dash_app.layout = html.Div([
             
             # Cleanup Status Message (for SAP DOX document deletion feedback)
             html.Div(id="cleanup-status-message", className="cleanup-status-message"),
+            dcc.Store(id="cleanup-message-timestamp", data=None),
+            dcc.Interval(id="cleanup-message-clear-interval", interval=5000, n_intervals=0),
             
             # Status Filter Buttons
             html.Div([
@@ -2551,7 +2553,8 @@ def toggle_cleanup_dialog(cleanup_clicks, cancel_clicks):
 @dash_app.callback(
     [Output("cleanup-trigger", "data"),
      Output("cleanup-dialog", "style", allow_duplicate=True),
-     Output("cleanup-status-message", "children")],
+     Output("cleanup-status-message", "children"),
+     Output("cleanup-message-timestamp", "data")],
     Input("cleanup-confirm", "n_clicks"),
     prevent_initial_call=True
 )
@@ -2597,13 +2600,36 @@ def confirm_cleanup(n_clicks):
                 f"Cleanup failed: {result.get('error', 'Unknown error')}"
             ])
         
-        return (n_clicks, dialog_style, status_msg)
+        import time
+        return (n_clicks, dialog_style, status_msg, time.time())
         
     except Exception as e:
+        import time
         return (n_clicks, {"display": "none"}, html.Span([
             html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-error)"}),
             f"Cleanup error: {str(e)}"
-        ]))
+        ]), time.time())
+
+# Auto-clear cleanup status message after 60 seconds
+@dash_app.callback(
+    Output("cleanup-status-message", "children", allow_duplicate=True),
+    Input("cleanup-message-clear-interval", "n_intervals"),
+    State("cleanup-message-timestamp", "data"),
+    prevent_initial_call=True
+)
+def auto_clear_cleanup_message(n_intervals, timestamp):
+    """Auto-clear the cleanup status message after 60 seconds"""
+    if timestamp is None:
+        raise PreventUpdate
+    
+    import time
+    current_time = time.time()
+    elapsed = current_time - timestamp
+    
+    if elapsed >= 60:
+        return ""
+    
+    raise PreventUpdate
 
 @dash_app.callback(
     [Output("current-job-id", "data"),
