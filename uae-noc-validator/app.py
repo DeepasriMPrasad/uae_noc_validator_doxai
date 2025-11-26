@@ -2336,7 +2336,6 @@ dash_app.layout = html.Div([
                     ),
                 ], className="search-container"),
                 html.Div([
-                    html.Label("Sort by:", className="sort-label"),
                     dcc.Dropdown(
                         id="history-sort",
                         options=[
@@ -2350,7 +2349,8 @@ dash_app.layout = html.Div([
                         ],
                         value="date_desc",
                         clearable=False,
-                        className="sort-dropdown"
+                        className="sort-dropdown",
+                        placeholder="Sort by..."
                     ),
                 ], className="sort-container"),
             ], className="history-controls"),
@@ -4172,6 +4172,10 @@ def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, his
                 status = result.get("status", "Unknown")
                 confidence = result.get("confidence", 0)
                 processing_time = result.get("processing_time", 0)
+                num_pages = result.get("num_pages", 0)
+                
+                # Format processing date/time from job's created_at
+                processed_date = job.created_at.strftime("%b %d, %Y %H:%M") if hasattr(job, 'created_at') else "Unknown"
                 
                 status_class = "doc-status " + status.lower().replace(" ", "-")
                 
@@ -4179,9 +4183,20 @@ def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, his
                     html.Div([
                         html.Div([html.Span(className="sap-icon sap-icon--document")], className="doc-icon"),
                         html.Div([
-                            html.Div(filename, className="doc-name"),
+                            html.Div(filename, className="doc-name", title=filename),
                             html.Div([
-                                html.Span(f"Processed in {processing_time}s"),
+                                html.Span([
+                                    html.Span(className="sap-icon sap-icon--calendar sap-icon--xs", style={"marginRight": "4px"}),
+                                    processed_date
+                                ], className="doc-meta-item"),
+                                html.Span([
+                                    html.Span(className="sap-icon sap-icon--time sap-icon--xs", style={"marginRight": "4px"}),
+                                    f"{processing_time}s"
+                                ], className="doc-meta-item"),
+                                html.Span([
+                                    html.Span(className="sap-icon sap-icon--pages sap-icon--xs", style={"marginRight": "4px"}),
+                                    f"{num_pages} pages"
+                                ], className="doc-meta-item") if num_pages > 0 else None,
                             ], className="doc-meta"),
                         ], className="doc-info"),
                         html.Span(status, className=status_class),

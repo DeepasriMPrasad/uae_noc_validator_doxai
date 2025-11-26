@@ -1288,6 +1288,24 @@
 .doc-meta {
     font-size: 0.8125rem;
     color: var(--sap-text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.doc-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--sap-text-secondary);
+    font-size: 0.75rem;
+}
+
+.doc-meta-item .sap-icon {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
 }
 
 .doc-status {
