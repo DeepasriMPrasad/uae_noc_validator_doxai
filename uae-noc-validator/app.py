@@ -1891,15 +1891,49 @@ dash_app.layout = html.Div([
         # ═══════════════════════════════════════════════════════════════════
         html.Div([
             
-            # Verdict Banner (Approved/Needs Review/Rejected)
-            html.Div(id="verdict-banner", className="verdict-banner", 
-                    style={"display": "none"}),
-            
-            # Confidence Gauge Chart (hidden during processing)
+            # Welcome State (shown before any document is processed)
             html.Div([
-                dcc.Graph(id="confidence-gauge", className="gauge-chart", 
-                         config={"displayModeBar": False}),
-            ], id="gauge-container", className="gauge-container", style={"display": "block"}),
+                html.Div([
+                    html.Div(className="sap-icon sap-icon--document-processing welcome-icon"),
+                    html.H2("Ready to Validate Documents", className="welcome-title"),
+                    html.P("Upload a UAE NOC document to begin AI-powered validation and extraction.", className="welcome-subtitle"),
+                    html.Div([
+                        html.Div([
+                            html.Span(className="sap-icon sap-icon--upload feature-icon"),
+                            html.Div([
+                                html.Strong("Upload PDF"),
+                                html.P("Drag & drop or click to select")
+                            ], className="feature-text")
+                        ], className="feature-item"),
+                        html.Div([
+                            html.Span(className="sap-icon sap-icon--ai feature-icon"),
+                            html.Div([
+                                html.Strong("AI Extraction"),
+                                html.P("SAP DOX analyzes your document")
+                            ], className="feature-text")
+                        ], className="feature-item"),
+                        html.Div([
+                            html.Span(className="sap-icon sap-icon--analytics feature-icon"),
+                            html.Div([
+                                html.Strong("Confidence Scoring"),
+                                html.P("Get detailed validation results")
+                            ], className="feature-text")
+                        ], className="feature-item"),
+                    ], className="features-grid"),
+                ], className="welcome-content")
+            ], id="welcome-state", className="welcome-state", style={"display": "block"}),
+            
+            # Results Container (hidden until document is processed)
+            html.Div([
+                # Verdict Banner (Approved/Needs Review/Rejected)
+                html.Div(id="verdict-banner", className="verdict-banner", 
+                        style={"display": "none"}),
+                
+                # Confidence Gauge Chart (hidden during processing)
+                html.Div([
+                    dcc.Graph(id="confidence-gauge", className="gauge-chart", 
+                             config={"displayModeBar": False}),
+                ], id="gauge-container", className="gauge-container"),
             
             # ───────────────────────────────────────────────────────────────
             # Processing Flow Visualization (NEW!)
@@ -2043,17 +2077,18 @@ dash_app.layout = html.Div([
                 dcc.Graph(id="graph-explain", className="confidence-chart"),
             ], className="chart-container"),
             
-            # ───────────────────────────────────────────────────────────────
-            # Raw JSON Output (for debugging/technical analysis)
-            # ───────────────────────────────────────────────────────────────
-            html.Details([
-                html.Summary([
-                    html.Span(className="sap-icon sap-icon--document", style={"marginRight": "8px"}),
-                    "VIEW DOCUMENT EXTRACTION JSON"
-                ], className="json-summary"),
-                html.Pre(id="json-output", className="json-output")
-            ], className="json-details", style={"display": "block" if CONFIG.get("ui", {}).get("show_raw_json", True) else "none"}),
-          
+                # ───────────────────────────────────────────────────────────────
+                # Raw JSON Output (for debugging/technical analysis)
+                # ───────────────────────────────────────────────────────────────
+                html.Details([
+                    html.Summary([
+                        html.Span(className="sap-icon sap-icon--document", style={"marginRight": "8px"}),
+                        "VIEW DOCUMENT EXTRACTION JSON"
+                    ], className="json-summary"),
+                    html.Pre(id="json-output", className="json-output")
+                ], className="json-details", style={"display": "block" if CONFIG.get("ui", {}).get("show_raw_json", True) else "none"}),
+              
+            ], id="results-container", style={"display": "none"}),
             
         ], className="right-panel"),
         
@@ -2716,6 +2751,8 @@ def confirm_cleanup(n_clicks):
      Output("upload-status", "children"),
      Output("progress-container", "style"),
      Output("upload-pdf", "disabled"),
+     Output("welcome-state", "style", allow_duplicate=True),
+     Output("results-container", "style", allow_duplicate=True),
      Output("verdict-banner", "style", allow_duplicate=True),
      Output("gauge-container", "style", allow_duplicate=True),
      Output("confidence-gauge", "figure", allow_duplicate=True),
@@ -2759,9 +2796,11 @@ def start_processing(content, filename, options_value_approx, options_value_vali
         return (
             None,  # No job ID
             True,  # Polling disabled
-            "❌ SAP DOX not configured. Please check your settings.",
+            "SAP DOX not configured. Please check your settings.",
             {"display": "none"},  # Hide progress bar
             False, # Enable upload button
+            {"display": "block"},  # Keep welcome state visible
+            {"display": "none"},   # Hide results container
             {"display": "none"},  # Hide verdict banner
             {"display": "block"},  # Show gauge container (for error state)
             go.Figure(),
@@ -2794,9 +2833,11 @@ def start_processing(content, filename, options_value_approx, options_value_vali
         return (
             None, 
             True, 
-            f"❌ Failed to decode file: {e}", 
+            f"Failed to decode file: {e}", 
             {"display": "none"}, 
             False,
+            {"display": "block"},  # Keep welcome state visible
+            {"display": "none"},   # Hide results container
             {"display": "none"},
             {"display": "block"},  # Show gauge container (for error state)
             go.Figure(),
@@ -2868,6 +2909,8 @@ def start_processing(content, filename, options_value_approx, options_value_vali
         ]),
         {"display": "block"},  # Show progress bar
         True,    # Disable upload button during processing
+        {"display": "none"},   # Hide welcome state when processing starts
+        {"display": "block"},  # Show results container
         {"display": "none"},  # Hide verdict banner
         {"display": "none"},  # Hide gauge container during processing
         empty_gauge,          # Clear gauge chart
@@ -3263,7 +3306,9 @@ def poll_job_status(n_intervals, job_id):
     )
 
 @dash_app.callback(
-    [Output("verdict-banner", "children"),
+    [Output("welcome-state", "style"),
+     Output("results-container", "style"),
+     Output("verdict-banner", "children"),
      Output("verdict-banner", "style"),
      Output("gauge-container", "style"),
      Output("confidence-gauge", "figure"),
@@ -3564,6 +3609,8 @@ def update_results(job_data):
     
     # Return all updated components
     return (
+        {"display": "none"},            # Hide welcome state
+        {"display": "block"},           # Show results container
         verdict_text,
         verdict_style,
         {"display": "block"},           # Show gauge container when results ready
