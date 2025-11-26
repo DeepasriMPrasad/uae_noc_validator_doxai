@@ -1639,17 +1639,21 @@
     text-align: left;
     max-width: 480px;
     margin: 0 auto;
+    justify-items: center;
 }
 
 .feature-item {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.875rem;
-    padding: 0.875rem 1rem;
+    padding: 1rem 1.25rem;
     background: white;
     border-radius: 8px;
     border: 1px solid var(--sap-border-color);
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 72px;
 }
 
 .feature-item:hover {
@@ -1658,11 +1662,10 @@
 }
 
 .feature-icon {
-    width: 32px !important;
-    height: 32px !important;
+    width: 28px !important;
+    height: 28px !important;
     color: var(--sap-brand-blue);
     flex-shrink: 0;
-    margin-top: 2px;
 }
 
 .feature-text {
