@@ -384,6 +384,9 @@ body {
 .options-label {
     color: var(--sap-text-primary);
     font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
 }
 
 /* ====================================================================

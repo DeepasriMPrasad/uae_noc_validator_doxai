@@ -1882,7 +1882,7 @@ dash_app.layout = html.Div([
                 html.Div([
                     html.Div(id="live-log", className="log-container"),
                 ], className="log-content")
-            ], id="log-panel-section", className="log-panel", open=True),
+            ], id="log-panel-section", className="log-panel", open=False),
             
         ], className="left-panel"),
         
