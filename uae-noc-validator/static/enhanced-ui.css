@@ -821,6 +821,7 @@
     gap: 0.75rem;
 }
 
+.rule-edit-btn,
 .rule-delete-btn {
     display: inline-flex;
     align-items: center;
@@ -836,12 +837,19 @@
     transition: all 0.2s ease;
 }
 
+.rule-edit-btn:hover {
+    background: rgba(91, 127, 149, 0.1);
+    border-color: var(--sap-brand-blue);
+    color: var(--sap-brand-blue);
+}
+
 .rule-delete-btn:hover {
     background: var(--sap-critical-bg);
     border-color: var(--sap-critical);
     color: var(--sap-critical);
 }
 
+.rule-edit-btn .sap-icon,
 .rule-delete-btn .sap-icon {
     width: 14px;
     height: 14px;

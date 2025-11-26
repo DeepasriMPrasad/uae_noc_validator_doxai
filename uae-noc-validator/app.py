@@ -2160,6 +2160,65 @@ dash_app.layout = html.Div([
         # Download Component
         dcc.Download(id="download-config"),
         
+        # Edit Field Modal Dialog
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--edit sap-icon--lg", style={"color": "var(--sap-brand-blue)", "marginRight": "10px"}),
+                    html.Span("Edit Schema Field", style={"fontWeight": "700", "fontSize": "1.1rem"})
+                ], style={"display": "flex", "alignItems": "center", "marginBottom": "1.5rem"}),
+                
+                # Hidden field to store the index being edited
+                dcc.Store(id="edit-field-index", data=None),
+                
+                # Form Fields
+                html.Div([
+                    html.Label("Field Name", className="form-label"),
+                    dcc.Input(id="edit-field-name", type="text", disabled=True, className="form-input", style={"background": "#f5f5f5"}),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Label("Description", className="form-label"),
+                    dcc.Input(id="edit-field-description", type="text", className="form-input"),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Div([
+                        html.Label("Field Type", className="form-label"),
+                        dcc.Dropdown(
+                            id="edit-field-type",
+                            options=[
+                                {"label": "String", "value": "string"},
+                                {"label": "Date", "value": "date"},
+                                {"label": "Number", "value": "number"},
+                                {"label": "Currency", "value": "currency"},
+                            ],
+                            clearable=False,
+                            className="form-dropdown"
+                        ),
+                    ], style={"flex": "1"}),
+                    html.Div([
+                        html.Label("Weight", className="form-label"),
+                        dcc.Input(id="edit-field-weight", type="number", min=0, max=100, className="form-input"),
+                    ], style={"flex": "1"}),
+                ], className="form-row"),
+                
+                html.Div([
+                    dcc.Checklist(
+                        id="edit-field-mandatory",
+                        options=[{"label": " Mark as Mandatory Field", "value": "mandatory"}],
+                        value=[],
+                        className="form-checklist"
+                    ),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Button("Cancel", id="edit-field-cancel", className="dialog-button-cancel"),
+                    html.Button("Save Changes", id="edit-field-save", className="dialog-button-confirm"),
+                ], style={"display": "flex", "gap": "10px", "justifyContent": "flex-end", "marginTop": "1.5rem"})
+            ], className="dialog-content modal-wide")
+        ], id="edit-field-modal", className="dialog-overlay", style={"display": "none"}),
+        
     ], id="tab-content-schema", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
     
     # ═══════════════════════════════════════════════════════════════════════
@@ -2256,6 +2315,51 @@ dash_app.layout = html.Div([
         
         # Download Component for Rules
         dcc.Download(id="download-rules"),
+        
+        # Edit Rule Modal Dialog
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--edit sap-icon--lg", style={"color": "var(--sap-brand-blue)", "marginRight": "10px"}),
+                    html.Span("Edit Validation Rule", style={"fontWeight": "700", "fontSize": "1.1rem"})
+                ], style={"display": "flex", "alignItems": "center", "marginBottom": "1.5rem"}),
+                
+                # Hidden store to track which rule is being edited
+                dcc.Store(id="edit-rule-field-key", data=None),
+                
+                # Form Fields
+                html.Div([
+                    html.Label("Target Field", className="form-label"),
+                    dcc.Input(id="edit-rule-field", type="text", disabled=True, className="form-input", style={"background": "#f5f5f5"}),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Label("Rule Type", className="form-label"),
+                    dcc.Dropdown(
+                        id="edit-rule-type",
+                        options=[
+                            {"label": "Date Age Limit", "value": "date_age"},
+                            {"label": "Whitelist (Allowed Values)", "value": "whitelist"},
+                        ],
+                        clearable=False,
+                        className="form-dropdown"
+                    ),
+                ], className="form-group"),
+                
+                # Dynamic parameters based on rule type
+                html.Div(id="edit-rule-params-container", children=[]),
+                
+                html.Div([
+                    html.Label("Error Message", className="form-label"),
+                    dcc.Input(id="edit-rule-error", type="text", className="form-input"),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Button("Cancel", id="edit-rule-cancel", className="dialog-button-cancel"),
+                    html.Button("Save Changes", id="edit-rule-save", className="dialog-button-confirm"),
+                ], style={"display": "flex", "gap": "10px", "justifyContent": "flex-end", "marginTop": "1.5rem"})
+            ], className="dialog-content modal-wide")
+        ], id="edit-rule-modal", className="dialog-overlay", style={"display": "none"}),
         
     ], id="tab-content-rules", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
     
@@ -3987,6 +4091,342 @@ def download_schema_config(n_clicks):
     return None
 
 
+# Callback to actually add a new schema field
+@dash_app.callback(
+    [Output("schema-fields-list", "children", allow_duplicate=True),
+     Output("add-field-modal", "style", allow_duplicate=True),
+     Output("new-field-name", "value"),
+     Output("new-field-description", "value"),
+     Output("new-field-weight", "value"),
+     Output("new-field-mandatory", "value")],
+    Input("add-field-confirm", "n_clicks"),
+    [State("new-field-name", "value"),
+     State("new-field-description", "value"),
+     State("new-field-type", "value"),
+     State("new-field-weight", "value"),
+     State("new-field-mandatory", "value")],
+    prevent_initial_call=True
+)
+def add_schema_field(n_clicks, field_name, description, field_type, weight, mandatory):
+    """Add a new field to the schema configuration"""
+    if not n_clicks or not field_name:
+        raise PreventUpdate
+    
+    # Clean field name (convert to camelCase if needed)
+    clean_name = field_name.strip().replace(" ", "")
+    
+    # Add to SCHEMA_DATA
+    new_field = {
+        "name": clean_name,
+        "description": description or f"Field: {clean_name}",
+        "formattingType": field_type or "string"
+    }
+    
+    if "headerFields" not in SCHEMA_DATA:
+        SCHEMA_DATA["headerFields"] = []
+    
+    # Check if field already exists
+    existing_names = [f.get("name") for f in SCHEMA_DATA.get("headerFields", [])]
+    if clean_name not in existing_names:
+        SCHEMA_DATA["headerFields"].append(new_field)
+    
+    # Update CONFIG weights and mandatory
+    if weight and weight > 0:
+        CONFIG["field_weights"][clean_name] = weight
+    
+    if mandatory and "mandatory" in mandatory:
+        if clean_name not in CONFIG.get("mandatory_fields", []):
+            if "mandatory_fields" not in CONFIG:
+                CONFIG["mandatory_fields"] = []
+            CONFIG["mandatory_fields"].append(clean_name)
+    
+    # Save config
+    try:
+        with open("config.json", "w") as f:
+            json.dump(CONFIG, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    
+    # Regenerate the fields list
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    mandatory_fields = CONFIG.get("mandatory_fields", [])
+    field_weights = CONFIG.get("field_weights", {})
+    total_weight = sum(field_weights.values()) if field_weights else 1
+    
+    field_items = []
+    for i, field in enumerate(schema_fields):
+        fname = field.get("name", f"field_{i}")
+        fdesc = field.get("description", "No description")
+        ftype = field.get("formattingType", "string")
+        is_mandatory = fname in mandatory_fields
+        w = field_weights.get(fname, 0)
+        weight_pct = round((w / total_weight) * 100, 1) if total_weight > 0 and w > 0 else 0
+        
+        badges = []
+        if is_mandatory:
+            badges.append(html.Span("Mandatory", className="badge-mandatory"))
+        if w > 0:
+            badges.append(html.Span(f"{weight_pct}%", className="badge-weight"))
+        
+        field_items.append(
+            html.Div([
+                html.Span(className="sap-icon sap-icon--drag field-drag-handle"),
+                html.Div([
+                    html.Div([html.Span(FRIENDLY_LABELS.get(fname, fname))], className="field-name"),
+                    html.Div(fdesc, className="field-description"),
+                ], className="field-info"),
+                html.Div(badges, className="field-badges"),
+                html.Span(ftype.upper(), className=f"field-type-badge {ftype}"),
+                html.Div([
+                    html.Button(html.Span(className="sap-icon sap-icon--edit sap-icon--sm"), className="field-action-btn", id={"type": "edit-field", "index": i}),
+                    html.Button(html.Span(className="sap-icon sap-icon--delete sap-icon--sm"), className="field-action-btn delete", id={"type": "remove-field", "index": i})
+                ], className="field-actions")
+            ], className="schema-field-card", id={"type": "schema-field", "index": i})
+        )
+    
+    return field_items, {"display": "none"}, "", "", 5, []
+
+
+# Callback to open Edit Field modal with pre-filled values
+@dash_app.callback(
+    [Output("edit-field-modal", "style"),
+     Output("edit-field-index", "data"),
+     Output("edit-field-name", "value"),
+     Output("edit-field-description", "value"),
+     Output("edit-field-type", "value"),
+     Output("edit-field-weight", "value"),
+     Output("edit-field-mandatory", "value")],
+    [Input({"type": "edit-field", "index": ALL}, "n_clicks"),
+     Input("edit-field-cancel", "n_clicks")],
+    prevent_initial_call=True
+)
+def open_edit_field_modal(edit_clicks, cancel_clicks):
+    """Open the edit field modal with pre-filled values"""
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    
+    trigger = ctx.triggered[0]["prop_id"]
+    
+    if "edit-field-cancel" in trigger:
+        return {"display": "none"}, None, "", "", "string", 0, []
+    
+    # Check if any edit button was clicked
+    if not edit_clicks or not any(c for c in edit_clicks if c):
+        raise PreventUpdate
+    
+    # Find which button was clicked
+    import ast
+    try:
+        id_str = trigger.replace(".n_clicks", "")
+        button_id = ast.literal_eval(id_str)
+        field_index = button_id.get("index")
+    except:
+        raise PreventUpdate
+    
+    # Get field data
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    if field_index >= len(schema_fields):
+        raise PreventUpdate
+    
+    field = schema_fields[field_index]
+    field_name = field.get("name", "")
+    field_desc = field.get("description", "")
+    field_type = field.get("formattingType", "string")
+    
+    # Get weight and mandatory status from CONFIG
+    weight = CONFIG.get("field_weights", {}).get(field_name, 0)
+    is_mandatory = field_name in CONFIG.get("mandatory_fields", [])
+    mandatory_val = ["mandatory"] if is_mandatory else []
+    
+    return {"display": "flex"}, field_index, field_name, field_desc, field_type, weight, mandatory_val
+
+
+# Callback to save edited field
+@dash_app.callback(
+    [Output("schema-fields-list", "children", allow_duplicate=True),
+     Output("edit-field-modal", "style", allow_duplicate=True)],
+    Input("edit-field-save", "n_clicks"),
+    [State("edit-field-index", "data"),
+     State("edit-field-name", "value"),
+     State("edit-field-description", "value"),
+     State("edit-field-type", "value"),
+     State("edit-field-weight", "value"),
+     State("edit-field-mandatory", "value")],
+    prevent_initial_call=True
+)
+def save_edited_field(n_clicks, field_index, field_name, description, field_type, weight, mandatory):
+    """Save the edited field"""
+    if not n_clicks or field_index is None:
+        raise PreventUpdate
+    
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    if field_index >= len(schema_fields):
+        raise PreventUpdate
+    
+    # Update the field in SCHEMA_DATA
+    SCHEMA_DATA["headerFields"][field_index]["description"] = description or ""
+    SCHEMA_DATA["headerFields"][field_index]["formattingType"] = field_type or "string"
+    
+    # Update weight in CONFIG
+    if weight is not None and weight > 0:
+        CONFIG["field_weights"][field_name] = weight
+    elif field_name in CONFIG.get("field_weights", {}):
+        del CONFIG["field_weights"][field_name]
+    
+    # Update mandatory status
+    mandatory_fields = CONFIG.get("mandatory_fields", [])
+    if mandatory and "mandatory" in mandatory:
+        if field_name not in mandatory_fields:
+            CONFIG["mandatory_fields"].append(field_name)
+    else:
+        if field_name in mandatory_fields:
+            CONFIG["mandatory_fields"].remove(field_name)
+    
+    # Save config
+    try:
+        with open("config.json", "w") as f:
+            json.dump(CONFIG, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    
+    # Regenerate the fields list
+    field_weights = CONFIG.get("field_weights", {})
+    total_weight = sum(field_weights.values()) if field_weights else 1
+    
+    field_items = []
+    for i, field in enumerate(schema_fields):
+        fname = field.get("name", f"field_{i}")
+        fdesc = field.get("description", "No description")
+        ftype = field.get("formattingType", "string")
+        is_mand = fname in CONFIG.get("mandatory_fields", [])
+        w = field_weights.get(fname, 0)
+        weight_pct = round((w / total_weight) * 100, 1) if total_weight > 0 and w > 0 else 0
+        
+        badges = []
+        if is_mand:
+            badges.append(html.Span("Mandatory", className="badge-mandatory"))
+        if w > 0:
+            badges.append(html.Span(f"{weight_pct}%", className="badge-weight"))
+        
+        field_items.append(
+            html.Div([
+                html.Span(className="sap-icon sap-icon--drag field-drag-handle"),
+                html.Div([
+                    html.Div([html.Span(FRIENDLY_LABELS.get(fname, fname))], className="field-name"),
+                    html.Div(fdesc, className="field-description"),
+                ], className="field-info"),
+                html.Div(badges, className="field-badges"),
+                html.Span(ftype.upper(), className=f"field-type-badge {ftype}"),
+                html.Div([
+                    html.Button(html.Span(className="sap-icon sap-icon--edit sap-icon--sm"), className="field-action-btn", id={"type": "edit-field", "index": i}),
+                    html.Button(html.Span(className="sap-icon sap-icon--delete sap-icon--sm"), className="field-action-btn delete", id={"type": "remove-field", "index": i})
+                ], className="field-actions")
+            ], className="schema-field-card", id={"type": "schema-field", "index": i})
+        )
+    
+    return field_items, {"display": "none"}
+
+
+# Callback to delete a schema field
+@dash_app.callback(
+    Output("schema-fields-list", "children", allow_duplicate=True),
+    Input({"type": "remove-field", "index": ALL}, "n_clicks"),
+    State({"type": "remove-field", "index": ALL}, "id"),
+    prevent_initial_call=True
+)
+def delete_schema_field(n_clicks_list, ids):
+    """Delete a schema field"""
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    
+    if not n_clicks_list or not any(c for c in n_clicks_list if c):
+        raise PreventUpdate
+    
+    # Find which button was clicked
+    triggered_id = ctx.triggered[0]["prop_id"]
+    if triggered_id == ".":
+        raise PreventUpdate
+    
+    import ast
+    try:
+        id_str = triggered_id.replace(".n_clicks", "")
+        button_id = ast.literal_eval(id_str)
+        field_index = button_id.get("index")
+    except:
+        raise PreventUpdate
+    
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    if field_index >= len(schema_fields):
+        raise PreventUpdate
+    
+    # Get field name before removing
+    field_name = schema_fields[field_index].get("name", "")
+    
+    # Remove from SCHEMA_DATA
+    del SCHEMA_DATA["headerFields"][field_index]
+    
+    # Remove from CONFIG weights and mandatory
+    if field_name in CONFIG.get("field_weights", {}):
+        del CONFIG["field_weights"][field_name]
+    if field_name in CONFIG.get("mandatory_fields", []):
+        CONFIG["mandatory_fields"].remove(field_name)
+    
+    # Save config
+    try:
+        with open("config.json", "w") as f:
+            json.dump(CONFIG, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    
+    # Regenerate the fields list
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    mandatory_fields = CONFIG.get("mandatory_fields", [])
+    field_weights = CONFIG.get("field_weights", {})
+    total_weight = sum(field_weights.values()) if field_weights else 1
+    
+    if not schema_fields:
+        return html.Div([
+            html.Span(className="sap-icon sap-icon--document sap-icon--xxl"),
+            html.Div("No schema fields configured", className="history-empty-text"),
+            html.Div("Add fields to configure extraction", className="history-empty-subtext"),
+        ], className="empty-state")
+    
+    field_items = []
+    for i, field in enumerate(schema_fields):
+        fname = field.get("name", f"field_{i}")
+        fdesc = field.get("description", "No description")
+        ftype = field.get("formattingType", "string")
+        is_mand = fname in mandatory_fields
+        w = field_weights.get(fname, 0)
+        weight_pct = round((w / total_weight) * 100, 1) if total_weight > 0 and w > 0 else 0
+        
+        badges = []
+        if is_mand:
+            badges.append(html.Span("Mandatory", className="badge-mandatory"))
+        if w > 0:
+            badges.append(html.Span(f"{weight_pct}%", className="badge-weight"))
+        
+        field_items.append(
+            html.Div([
+                html.Span(className="sap-icon sap-icon--drag field-drag-handle"),
+                html.Div([
+                    html.Div([html.Span(FRIENDLY_LABELS.get(fname, fname))], className="field-name"),
+                    html.Div(fdesc, className="field-description"),
+                ], className="field-info"),
+                html.Div(badges, className="field-badges"),
+                html.Span(ftype.upper(), className=f"field-type-badge {ftype}"),
+                html.Div([
+                    html.Button(html.Span(className="sap-icon sap-icon--edit sap-icon--sm"), className="field-action-btn", id={"type": "edit-field", "index": i}),
+                    html.Button(html.Span(className="sap-icon sap-icon--delete sap-icon--sm"), className="field-action-btn delete", id={"type": "remove-field", "index": i})
+                ], className="field-actions")
+            ], className="schema-field-card", id={"type": "schema-field", "index": i})
+        )
+    
+    return field_items
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # BUSINESS RULES TAB CALLBACKS  
 # ═══════════════════════════════════════════════════════════════════════════
@@ -4032,6 +4472,9 @@ def load_business_rules(tab_click, reset_click):
                     ], className="rule-card-title"),
                     html.Div([
                         html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
+                        html.Button([
+                            html.Span(className="sap-icon sap-icon--edit sap-icon--sm")
+                        ], id={"type": "edit-rule-btn", "index": field_name}, className="rule-edit-btn", n_clicks=0, title="Edit Rule"),
                         html.Button([
                             html.Span(className="sap-icon sap-icon--delete sap-icon--sm")
                         ], id={"type": "delete-rule-btn", "index": field_name}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
@@ -4131,6 +4574,9 @@ def delete_rule(n_clicks_list, ids):
                     html.Div([
                         html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
                         html.Button([
+                            html.Span(className="sap-icon sap-icon--edit sap-icon--sm")
+                        ], id={"type": "edit-rule-btn", "index": field_name_iter}, className="rule-edit-btn", n_clicks=0, title="Edit Rule"),
+                        html.Button([
                             html.Span(className="sap-icon sap-icon--delete sap-icon--sm")
                         ], id={"type": "delete-rule-btn", "index": field_name_iter}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
                     ], className="rule-card-actions"),
@@ -4218,6 +4664,271 @@ def download_rules_config(n_clicks):
             type="application/json"
         )
     return None
+
+
+# Callback to actually add a new business rule
+@dash_app.callback(
+    [Output("business-rules-list", "children", allow_duplicate=True),
+     Output("add-rule-modal", "style", allow_duplicate=True),
+     Output("new-rule-field", "value"),
+     Output("new-rule-type", "value"),
+     Output("new-rule-error", "value")],
+    Input("add-rule-confirm", "n_clicks"),
+    [State("new-rule-field", "value"),
+     State("new-rule-type", "value"),
+     State("new-rule-error", "value"),
+     State("rule-params-container", "children")],
+    prevent_initial_call=True
+)
+def add_business_rule(n_clicks, field_name, rule_type, error_msg, params_children):
+    """Add a new business rule to config"""
+    if not n_clicks or not field_name or not rule_type:
+        raise PreventUpdate
+    
+    # Build the rule based on type
+    new_rule = {
+        "type": rule_type,
+        "error_message": error_msg or f"Validation failed for {field_name}"
+    }
+    
+    # Extract params based on rule type
+    if rule_type == "date_age":
+        new_rule["max_age_months"] = 6  # Default, would need to extract from params
+    elif rule_type == "whitelist":
+        new_rule["allowed_values"] = []  # Default empty list
+    
+    # Add to CONFIG
+    if "validation_rules" not in CONFIG:
+        CONFIG["validation_rules"] = {}
+    CONFIG["validation_rules"][field_name] = new_rule
+    
+    # Save config
+    try:
+        with open("config.json", "w") as f:
+            json.dump(CONFIG, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    
+    # Regenerate rules list
+    validation_rules = CONFIG.get("validation_rules", {})
+    rule_items = []
+    for fname, rule in validation_rules.items():
+        rtype = rule.get("type", "unknown")
+        err_msg = rule.get("error_message", "Validation failed")
+        
+        if rtype == "date_age":
+            max_months = rule.get("max_age_months", 6)
+            details = f"Maximum age: {max_months} months"
+        elif rtype == "whitelist":
+            allowed = rule.get("allowed_values", [])
+            details = f"{len(allowed)} allowed values"
+        else:
+            details = "Custom rule"
+        
+        rule_items.append(
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Span(className="sap-icon sap-icon--rules"),
+                        html.Span(f"{FRIENDLY_LABELS.get(fname, fname)}", style={"marginLeft": "8px"})
+                    ], className="rule-card-title"),
+                    html.Div([
+                        html.Span(rtype.upper(), className=f"rule-type-badge {rtype}"),
+                        html.Button([html.Span(className="sap-icon sap-icon--edit sap-icon--sm")], id={"type": "edit-rule-btn", "index": fname}, className="rule-edit-btn", n_clicks=0, title="Edit Rule"),
+                        html.Button([html.Span(className="sap-icon sap-icon--delete sap-icon--sm")], id={"type": "delete-rule-btn", "index": fname}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
+                    ], className="rule-card-actions"),
+                ], className="rule-card-header"),
+                html.Div([
+                    html.Div([html.Span("Rule Type:", className="rule-param-label"), html.Span(rtype.replace("_", " ").title(), className="rule-param-value")], className="rule-param"),
+                    html.Div([html.Span("Details:", className="rule-param-label"), html.Span(details, className="rule-param-value")], className="rule-param"),
+                    html.Div([html.Span("Error Message:", className="rule-param-label"), html.Span(err_msg, className="rule-param-value")], className="rule-param"),
+                ], className="rule-card-body"),
+            ], className="rule-card")
+        )
+    
+    return rule_items, {"display": "none"}, None, None, ""
+
+
+# Callback to open Edit Rule modal with pre-filled values
+@dash_app.callback(
+    [Output("edit-rule-modal", "style"),
+     Output("edit-rule-field-key", "data"),
+     Output("edit-rule-field", "value"),
+     Output("edit-rule-type", "value"),
+     Output("edit-rule-error", "value"),
+     Output("edit-rule-params-container", "children")],
+    [Input({"type": "edit-rule-btn", "index": ALL}, "n_clicks"),
+     Input("edit-rule-cancel", "n_clicks")],
+    prevent_initial_call=True
+)
+def open_edit_rule_modal(edit_clicks, cancel_clicks):
+    """Open the edit rule modal with pre-filled values"""
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    
+    trigger = ctx.triggered[0]["prop_id"]
+    
+    if "edit-rule-cancel" in trigger:
+        return {"display": "none"}, None, "", None, "", html.Div()
+    
+    # Check if any edit button was clicked
+    if not edit_clicks or not any(c for c in edit_clicks if c):
+        raise PreventUpdate
+    
+    # Find which button was clicked
+    import ast
+    try:
+        id_str = trigger.replace(".n_clicks", "")
+        button_id = ast.literal_eval(id_str)
+        field_name = button_id.get("index")
+    except:
+        raise PreventUpdate
+    
+    # Get rule data from CONFIG
+    rule = CONFIG.get("validation_rules", {}).get(field_name)
+    if not rule:
+        raise PreventUpdate
+    
+    rule_type = rule.get("type", "date_age")
+    error_msg = rule.get("error_message", "")
+    
+    # Build params form based on rule type
+    if rule_type == "date_age":
+        max_months = rule.get("max_age_months", 6)
+        params_form = html.Div([
+            html.Label("Maximum Age (Months)", className="form-label"),
+            dcc.Input(id="edit-rule-max-age", type="number", value=max_months, min=1, className="form-input"),
+        ], className="form-group")
+    elif rule_type == "whitelist":
+        allowed = rule.get("allowed_values", [])
+        params_form = html.Div([
+            html.Label("Allowed Values (comma-separated)", className="form-label"),
+            dcc.Input(id="edit-rule-whitelist", type="text", value=", ".join(allowed), className="form-input"),
+        ], className="form-group")
+    else:
+        params_form = html.Div()
+    
+    return {"display": "flex"}, field_name, FRIENDLY_LABELS.get(field_name, field_name), rule_type, error_msg, params_form
+
+
+# Callback to update edit rule params when type changes
+@dash_app.callback(
+    Output("edit-rule-params-container", "children", allow_duplicate=True),
+    Input("edit-rule-type", "value"),
+    State("edit-rule-field-key", "data"),
+    prevent_initial_call=True
+)
+def update_edit_rule_params(rule_type, field_key):
+    """Update edit rule params form when rule type changes"""
+    if not rule_type:
+        return html.Div()
+    
+    # Get current values from CONFIG if available
+    current_rule = CONFIG.get("validation_rules", {}).get(field_key, {}) if field_key else {}
+    
+    if rule_type == "date_age":
+        max_months = current_rule.get("max_age_months", 6)
+        return html.Div([
+            html.Label("Maximum Age (Months)", className="form-label"),
+            dcc.Input(id="edit-rule-max-age", type="number", value=max_months, min=1, className="form-input"),
+        ], className="form-group")
+    elif rule_type == "whitelist":
+        allowed = current_rule.get("allowed_values", [])
+        return html.Div([
+            html.Label("Allowed Values (comma-separated)", className="form-label"),
+            dcc.Input(id="edit-rule-whitelist", type="text", value=", ".join(allowed) if allowed else "", className="form-input"),
+        ], className="form-group")
+    else:
+        return html.Div()
+
+
+# Callback to save edited rule
+@dash_app.callback(
+    [Output("business-rules-list", "children", allow_duplicate=True),
+     Output("edit-rule-modal", "style", allow_duplicate=True)],
+    Input("edit-rule-save", "n_clicks"),
+    [State("edit-rule-field-key", "data"),
+     State("edit-rule-type", "value"),
+     State("edit-rule-error", "value"),
+     State("edit-rule-params-container", "children")],
+    prevent_initial_call=True
+)
+def save_edited_rule(n_clicks, field_key, rule_type, error_msg, params_children):
+    """Save the edited rule"""
+    if not n_clicks or not field_key:
+        raise PreventUpdate
+    
+    # Get existing rule to preserve params if type hasn't changed
+    existing_rule = CONFIG.get("validation_rules", {}).get(field_key, {})
+    existing_type = existing_rule.get("type")
+    
+    # Build updated rule
+    updated_rule = {
+        "type": rule_type,
+        "error_message": error_msg or f"Validation failed for {field_key}"
+    }
+    
+    # Preserve existing params if same type, otherwise use defaults
+    if rule_type == "date_age":
+        if existing_type == "date_age":
+            updated_rule["max_age_months"] = existing_rule.get("max_age_months", 6)
+        else:
+            updated_rule["max_age_months"] = 6
+    elif rule_type == "whitelist":
+        if existing_type == "whitelist":
+            updated_rule["allowed_values"] = existing_rule.get("allowed_values", [])
+        else:
+            updated_rule["allowed_values"] = []
+    
+    # Update CONFIG
+    CONFIG["validation_rules"][field_key] = updated_rule
+    
+    # Save config
+    try:
+        with open("config.json", "w") as f:
+            json.dump(CONFIG, f, indent=2)
+    except Exception as e:
+        print(f"Error saving config: {e}")
+    
+    # Regenerate rules list
+    validation_rules = CONFIG.get("validation_rules", {})
+    rule_items = []
+    for fname, rule in validation_rules.items():
+        rtype = rule.get("type", "unknown")
+        err_msg = rule.get("error_message", "Validation failed")
+        
+        if rtype == "date_age":
+            max_months = rule.get("max_age_months", 6)
+            details = f"Maximum age: {max_months} months"
+        elif rtype == "whitelist":
+            allowed = rule.get("allowed_values", [])
+            details = f"{len(allowed)} allowed values"
+        else:
+            details = "Custom rule"
+        
+        rule_items.append(
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Span(className="sap-icon sap-icon--rules"),
+                        html.Span(f"{FRIENDLY_LABELS.get(fname, fname)}", style={"marginLeft": "8px"})
+                    ], className="rule-card-title"),
+                    html.Div([
+                        html.Span(rtype.upper(), className=f"rule-type-badge {rtype}"),
+                        html.Button([html.Span(className="sap-icon sap-icon--edit sap-icon--sm")], id={"type": "edit-rule-btn", "index": fname}, className="rule-edit-btn", n_clicks=0, title="Edit Rule"),
+                        html.Button([html.Span(className="sap-icon sap-icon--delete sap-icon--sm")], id={"type": "delete-rule-btn", "index": fname}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
+                    ], className="rule-card-actions"),
+                ], className="rule-card-header"),
+                html.Div([
+                    html.Div([html.Span("Rule Type:", className="rule-param-label"), html.Span(rtype.replace("_", " ").title(), className="rule-param-value")], className="rule-param"),
+                    html.Div([html.Span("Details:", className="rule-param-label"), html.Span(details, className="rule-param-value")], className="rule-param"),
+                    html.Div([html.Span("Error Message:", className="rule-param-label"), html.Span(err_msg, className="rule-param-value")], className="rule-param"),
+                ], className="rule-card-body"),
+            ], className="rule-card")
+        )
+    
+    return rule_items, {"display": "none"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
