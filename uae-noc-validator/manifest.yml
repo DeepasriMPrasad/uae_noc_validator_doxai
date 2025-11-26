@@ -1,0 +1,34 @@
+applications:
+  - name: uae-noc-validator
+    memory: 2045M
+    disk_quota: 1G
+    instances: 1
+    buildpack: python_buildpack
+    command: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 app:server
+    
+    # Health check configuration
+    health-check-type: http
+    health-check-http-endpoint: /health
+    timeout: 180
+    
+    # Environment variables (override with cf set-env or user-provided services)
+    env:
+      # Application settings
+      DEBUG: "false"
+      #SAP DOX credentials should be bound via service binding or set manually
+      UAA_URL: "https://learning-fest-2-70ouhtic.authentication.eu12.hana.ondemand.com/oauth/token"
+      DOX_BASE_URL: "https://aiservices-dox.cfapps.eu12.hana.ondemand.com/document-information-extraction/v1"
+      CLIENT_ID: "sb-1215a0b0-2eb4-469d-89f9-1a933e7b5e33!b1322472|dox-xsuaa-std-internal-production!b278037"
+      CLIENT_SECRET: "7974b4e7-f6ac-4cdb-8de4-ab2009ff7067$apY8h4Ut--88x_pASSevLYBLtwjU_Qz2b-fDT0CzuD0="
+    
+    # Service bindings (uncomment if using BTP services)
+    services:
+      - document-information-extraction-instance
+      - xsuaa-instance
+    
+    # Stack specification
+    stack: cflinuxfs4
+    
+    # Optional: Custom routes
+    routes:
+      - route: uae-noc-validator.cfapps.region.hana.ondemand.com

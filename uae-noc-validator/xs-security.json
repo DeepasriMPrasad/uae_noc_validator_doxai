@@ -1,0 +1,17 @@
+{
+  "xsappname": "uae-noc-validator",
+  "tenant-mode": "dedicated",
+  "description": "Security profile for UAE NOC Validator - Open Access",
+  "scopes": [],
+  "attributes": [],
+  "role-templates": [],
+  "oauth2-configuration": {
+    "token-validity": 7200,
+    "redirect-uris": [
+      "https://*.cfapps.*.hana.ondemand.com/**"
+    ],
+    "grant-types": [
+      "authorization_code"
+    ]
+  }
+}

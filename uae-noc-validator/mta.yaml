@@ -1,0 +1,59 @@
+_schema-version: "3.1"
+ID: uae-noc-validator
+version: 2.0.0
+description: UAE NOC Document Validator using SAP Document Information Extraction
+
+parameters:
+  enable-parallel-deployments: true
+
+modules:
+  # Python Application Module
+  - name: uae-noc-validator-app
+    type: python
+    path: .
+    parameters:
+      memory: 512M
+      disk-quota: 2G
+      buildpack: python_buildpack
+      command: gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 app:server
+    properties:
+      DEBUG: false
+    requires:
+      - name: uae-noc-dox-service
+      - name: uae-noc-uaa-service
+    provides:
+      - name: uae-noc-validator-api
+        properties:
+          url: ${default-url}
+
+  # Application Router (optional, for production auth)
+  - name: uae-noc-validator-approuter
+    type: approuter.nodejs
+    path: approuter
+    parameters:
+      memory: 128M
+      disk-quota: 256M
+    requires:
+      - name: uae-noc-uaa-service
+      - name: uae-noc-validator-api
+        group: destinations
+        properties:
+          name: uae-noc-validator-backend
+          url: ~{url}
+          forwardAuthToken: true
+
+resources:
+  # Document Information Extraction Service (using existing service)
+  - name: uae-noc-dox-service
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: dosai
+
+  # UAA Service for Authentication
+  - name: uae-noc-uaa-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: uae-noc-uaa
+      path: ./xs-security.json

@@ -1,0 +1,1375 @@
+/* ====================================================================
+   UAE NOC Validator - SAP Fiori "Belize/Quartz" Inspired Theme
+   Clean, Flat, Professional Enterprise UI
+   ==================================================================== */
+
+:root {
+    /* SAP Brand Colors - Muted & Professional */
+    --sap-brand-dark: #354A5F;      /* Shell Bar Color */
+    --sap-brand-blue: #5B7F95;      /* Muted Blue (less bright) */
+    --sap-bg-base: #EDF0F5;         /* Fiori Application Background */
+    
+    /* Semantic Colors (Subtle) */
+    --sap-positive: #107E3E;        /* Success Green */
+    --sap-critical: #8B4A4A;        /* Muted Dark Red (less bright) */
+    --sap-critical-bg: #F5F0F0;     /* Very subtle red bg */
+    --sap-warning: #B8860B;         /* Muted Gold/Orange */
+    --sap-neutral: #6A6D70;         /* Neutral Grey */
+    
+    /* UI Elements */
+    --sap-tile-bg: #FFFFFF;
+    --sap-border-color: #D9D9D9;
+    --sap-text-primary: #32363A;
+    --sap-text-secondary: #6A6D70;
+    
+    /* Accent Color - Very Subtle */
+    --sap-accent-subtle: #7A9BB3;   /* Soft blue-grey for accents */
+    
+    /* Fonts */
+    --sap-font-family: "72", "Segoe UI", Helvetica, Arial, sans-serif;
+    --sap-font-mono: "Consolas", "Courier New", monospace;
+}
+
+body {
+    font-family: var(--sap-font-family);
+    background-color: var(--sap-bg-base);
+    background-image: linear-gradient(to bottom, #A9C8E6 0%, #EDF0F5 300px);
+    background-repeat: no-repeat;
+    color: var(--sap-text-primary);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.app-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ====================================================================
+   Header (Shell Bar)
+   ==================================================================== */
+.header {
+    background-color: var(--sap-brand-dark) !important;
+    color: #FFFFFF;
+    padding: 0.75rem 1.5rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 0 !important;
+    margin-bottom: 2rem;
+}
+
+.header-title {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    color: #FFFFFF !important;
+}
+
+.header-subtitle {
+    font-size: 0.875rem !important;
+    color: rgba(255,255,255,0.8) !important;
+    margin-top: 2px !important;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.cleanup-button {
+    background: transparent !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    color: #fff !important;
+    border-radius: 4px !important;
+    padding: 4px 12px !important;
+}
+.cleanup-button:hover {
+    background: rgba(255,255,255,0.1) !important;
+}
+
+/* ====================================================================
+   Panels (Cards)
+   ==================================================================== */
+.upload-panel, .log-panel, .right-panel {
+    background: var(--sap-tile-bg);
+    border-radius: 6px; /* Slightly softer corners */
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05); /* Fiori Card Shadow */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: none !important;
+}
+
+.panel-title {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--sap-text-primary) !important;
+    margin-bottom: 1.25rem !important;
+    border-bottom: 1px solid var(--sap-border-color);
+    padding-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ====================================================================
+   Upload Box - Clean & Professional
+   ==================================================================== */
+.upload-box {
+    background-color: #FAFAFA !important;
+    border: 1px dashed var(--sap-brand-blue) !important; /* Thin, clean border */
+    border-radius: 6px !important;
+    padding: 2rem 1rem !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.upload-box:hover {
+    background-color: #F0F8FF !important; /* Very light blue on hover */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.upload-text {
+    color: var(--sap-brand-blue) !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.upload-subtext {
+    color: var(--sap-text-secondary) !important;
+    font-size: 0.875rem !important;
+}
+
+/* ====================================================================
+   Logs Panel - Collapsible with Animations
+   ==================================================================== */
+.log-panel {
+    background: var(--sap-tile-bg) !important;
+    border: 1px solid var(--sap-border-color) !important;
+    border-radius: 6px !important;
+    padding: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.log-summary {
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: var(--sap-brand-blue) !important;
+    padding: 0.75rem !important;
+    border-radius: 4px !important;
+    transition: background 0.2s ease !important;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.log-summary:hover {
+    background: #F5F5F5 !important;
+}
+
+.log-content {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sap-border-color);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.log-container {
+    background: var(--sap-brand-dark) !important;
+    color: #E6E6E6 !important;
+    font-family: var(--sap-font-mono) !important;
+    font-size: 0.8rem !important;
+    line-height: 1.6 !important;
+    height: 350px;
+    overflow-y: auto;
+    border-radius: 4px !important;
+    padding: 1rem !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
+    white-space: pre-line !important;
+    transition: all 0.3s ease;
+}
+
+/* Animated Status Badge in Log Header */
+.log-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+    transition: all 0.3s ease;
+}
+
+/* Status Badge States with Animations */
+.log-status-idle {
+    background: rgba(200, 200, 200, 0.2);
+    color: var(--sap-text-secondary);
+}
+
+.log-status-processing {
+    background: rgba(91, 127, 149, 0.2);
+    color: var(--sap-brand-blue);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.log-status-completed {
+    background: rgba(16, 126, 62, 0.2);
+    color: var(--sap-positive);
+    animation: successPulse 0.6s ease;
+}
+
+.log-status-failed {
+    background: rgba(139, 74, 74, 0.2);
+    color: var(--sap-critical);
+    animation: shake 0.5s ease;
+}
+
+/* Pulsing animation for processing state */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+/* Success flash animation */
+@keyframes successPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 126, 62, 0.7);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 8px rgba(16, 126, 62, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 126, 62, 0);
+    }
+}
+
+/* Shake animation for error state */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Processing spinner dot animation */
+.log-status-processing::before {
+    content: "●";
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ====================================================================
+   Progress Bar - Flat & Modern (Fiori Standard)
+   ==================================================================== */
+#progress-container {
+    /* Container styles are now applied inline in app.py */
+}
+
+.progress-bar {
+    background-color: var(--sap-brand-blue);
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    background-image: none !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    min-width: 50px; /* Ensure bar is visible even at low percentages */
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    color: #FFFFFF;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ====================================================================
+   Verdict Banner - Refined
+   ==================================================================== */
+.verdict-banner {
+    padding: 1rem 1.5rem !important;
+    border-radius: 4px !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    /* We will use border-left for color instead of full background */
+    background: #FFFFFF !important; 
+    border-left: 6px solid; /* Color applied via inline style in Python */
+    color: var(--sap-text-primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ====================================================================
+   Layout & Utilities
+   ==================================================================== */
+.main-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .main-content { grid-template-columns: 1fr; }
+}
+
+.options-panel {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+.options-label {
+    color: var(--sap-text-primary);
+    font-weight: 600;
+}
+
+/* ====================================================================
+   Tables (SAP Fiori Style) - Fixed Header Visibility & Stable Layout
+   ==================================================================== */
+.table-container {
+    background: var(--sap-tile-bg);
+    border-radius: 6px;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--sap-border-color);
+}
+
+.dash-table-container {
+    border-radius: 6px !important;
+    overflow: hidden;
+}
+
+.dash-spreadsheet-container table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100%;
+    table-layout: fixed !important; /* Force stable column widths */
+}
+
+/* Prevent layout shift during sorting */
+.dash-spreadsheet-container {
+    position: relative;
+}
+
+.dash-spreadsheet-container .dash-spreadsheet {
+    table-layout: fixed !important;
+}
+
+/* Table Headers - High Contrast & Visible */
+.dash-spreadsheet-container .dash-header {
+    background: var(--sap-brand-dark) !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 16px !important;
+    border: none !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap !important; /* Prevent text wrapping in headers */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Sort icons - prevent layout shift */
+.dash-spreadsheet-container .dash-header .column-header--sort {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* Alternative lighter header style (uncomment if preferred) */
+/*
+.dash-spreadsheet-container .dash-header {
+    background: #F5F5F5 !important;
+    color: var(--sap-text-primary) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid var(--sap-brand-blue) !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+*/
+
+/* Table Cells */
+.dash-spreadsheet-container .dash-cell {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #EBEBEB !important;
+    font-size: 0.875rem !important;
+    color: var(--sap-text-primary) !important;
+    background: white !important;
+    transition: background-color 0.15s ease !important;
+    white-space: nowrap !important; /* Prevent text wrapping */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important; /* Show ellipsis for long text */
+    max-width: 0 !important; /* Work with table-layout: fixed */
+}
+
+/* Allow specific columns to wrap if needed (can be customized) */
+.dash-spreadsheet-container .dash-cell.cell-0-0,
+.dash-spreadsheet-container .dash-cell[data-dash-column="Extracted Value"] {
+    white-space: normal !important; /* Allow wrapping for extracted values */
+    word-break: break-word !important;
+}
+
+/* Row hover effect */
+.dash-spreadsheet-container tbody tr:hover .dash-cell {
+    background-color: #F5F8FA !important;
+}
+
+/* Alternating row colors (optional - comment out if not desired) */
+.dash-spreadsheet-container tbody tr:nth-child(even) .dash-cell {
+    background-color: #FAFAFA !important;
+}
+
+.dash-spreadsheet-container tbody tr:nth-child(even):hover .dash-cell {
+    background-color: #F5F8FA !important;
+}
+
+/* Remove border from last row */
+.dash-spreadsheet-container tbody tr:last-child .dash-cell {
+    border-bottom: none !important;
+}
+
+/* ====================================================================
+   Section Headers
+   ==================================================================== */
+h3 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--sap-text-primary) !important;
+    margin: 2rem 0 1rem 0 !important;
+    padding-bottom: 0.75rem !important;
+    border-bottom: 2px solid var(--sap-brand-blue) !important;
+}
+
+/* ====================================================================
+   Charts & Visualizations
+   ==================================================================== */
+.gauge-container,
+.chart-container {
+    background: var(--sap-tile-bg);
+    border-radius: 6px;
+    padding: 1.5rem;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--sap-border-color);
+}
+
+/* ====================================================================
+   Explainability Panel
+   ==================================================================== */
+.explainability-panel {
+    background: #F8F9FA;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.summary-title {
+    color: var(--sap-text-primary) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 1rem 0 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0 0;
+}
+
+.summary-list li {
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    background: white;
+    border-radius: 4px;
+    border-left: 3px solid var(--sap-border-color);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.summary-list li:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* ====================================================================
+   Details/Summary (Collapsible JSON)
+   ==================================================================== */
+details {
+    background: var(--sap-tile-bg) !important;
+    border: 1px solid var(--sap-border-color) !important;
+    border-radius: 6px !important;
+    padding: 1rem !important;
+    margin: 1.5rem 0 !important;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1) !important;
+}
+
+summary {
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: var(--sap-brand-blue) !important;
+    padding: 0.5rem !important;
+    border-radius: 4px !important;
+    transition: background 0.2s ease !important;
+    user-select: none;
+}
+
+summary:hover {
+    background: #F5F5F5 !important;
+}
+
+.json-output {
+    background: var(--sap-brand-dark) !important; /* Match header color */
+    color: #D4D4D4 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 1rem !important;
+    font-family: var(--sap-font-mono) !important;
+    font-size: 0.75rem !important;
+    line-height: 1.5 !important;
+    overflow-x: auto;
+    overflow-y: auto !important;
+    max-height: 400px !important;
+    margin-top: 1rem !important;
+}
+
+/* ====================================================================
+   Dialog/Modal
+   ==================================================================== */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.dialog-content {
+    background: white;
+    border-radius: 6px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.dialog-content h3 {
+    color: var(--sap-text-primary) !important;
+    margin-top: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.dialog-button-cancel,
+.dialog-button-confirm {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.dialog-button-cancel {
+    background: #F5F5F5;
+    color: var(--sap-text-primary);
+    border: 1px solid var(--sap-border-color);
+}
+
+.dialog-button-cancel:hover {
+    background: #EBEBEB;
+}
+
+.dialog-button-confirm {
+    background: var(--sap-critical);
+    color: white;
+}
+
+.dialog-button-confirm:hover {
+    background: #990000;
+}
+
+/* ====================================================================
+   Loading State
+   ==================================================================== */
+._dash-loading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 3rem !important;
+}
+
+._dash-loading-callback {
+    border: 3px solid #E5E5E5 !important;
+    border-top: 3px solid var(--sap-brand-blue) !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    animation: spin 0.8s linear infinite !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ====================================================================
+   Upload Status Messages
+   ==================================================================== */
+.upload-status {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #F5F5F5;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: var(--sap-text-primary);
+}
+
+/* ====================================================================
+   Responsive Design
+   ==================================================================== */
+@media (max-width: 768px) {
+    .header {
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .header-title {
+        font-size: 1rem !important;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .upload-panel,
+    .log-panel,
+    .right-panel {
+        padding: 1rem;
+    }
+}
+
+/* ====================================================================
+   Accessibility
+   ==================================================================== */
+:focus-visible {
+    outline: 2px solid var(--sap-brand-blue) !important;
+    outline-offset: 2px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ====================================================================
+   Table Cell Selection & Focus Overrides (Fixing the Pink/Default Highlight)
+   ==================================================================== */
+
+/* 1. Override the focused cell (clicked cell) */
+.dash-spreadsheet-container .dash-cell.focused {
+    border-color: var(--sap-brand-blue) !important;
+    box-shadow: inset 0 0 0 1px var(--sap-brand-blue) !important; /* Creates a clean Fiori-style inner border */
+    outline: none !important;
+    background-color: #F5F8FA !important; /* Matches your row hover color */
+    color: var(--sap-text-primary) !important;
+    caret-color: var(--sap-text-primary) !important; /* Cursor color */
+}
+
+/* 2. Override the selected cell/active state */
+.dash-spreadsheet-container .dash-cell.selected {
+    background-color: rgba(91, 127, 149, 0.1) !important; /* Very subtle version of brand blue */
+    border-color: var(--sap-brand-blue) !important;
+    color: var(--sap-text-primary) !important;
+}
+
+/* 3. Remove the default pink selection area when dragging to select multiple cells */
+.dash-spreadsheet-container .dash-cell.cell--selected {
+    background-color: rgba(91, 127, 149, 0.1) !important;
+    border-color: var(--sap-brand-blue) !important;
+}
+
+/* 4. Ensure the input within an editable cell matches the theme */
+.dash-spreadsheet-container .dash-cell .dash-input-cell {
+    color: var(--sap-text-primary) !important;
+    font-family: var(--sap-font-family) !important;
+}
+
+/* ====================================================================
+   PDF Viewer Section - Collapsible Document Comparison
+   ==================================================================== */
+.pdf-details {
+    background: var(--sap-tile-bg) !important;
+    border: 1px solid var(--sap-border-color) !important;
+    border-radius: 6px !important;
+    padding: 1rem !important;
+    margin: 1.5rem 0 !important;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1) !important;
+}
+
+.pdf-summary {
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: var(--sap-brand-blue) !important;
+    padding: 0.5rem !important;
+    border-radius: 4px !important;
+    transition: background 0.1s ease !important;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.pdf-summary:hover {
+    background: #F5F5F5 !important;
+}
+
+#pdf-viewer {
+    display: block;
+    background: #FAFAFA;
+}
+
+/* Responsive PDF viewer height */
+@media (max-width: 768px) {
+    #pdf-viewer {
+        height: 500px !important;
+    }
+}
+
+/* ====================================================================
+   Info Tooltips for Processing Options
+   ==================================================================== */
+.info-tooltip-row {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.info-icon {
+    font-size: 1rem;
+    color: var(--sap-brand-blue);
+    cursor: help;
+    margin-right: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.info-icon:hover {
+    color: var(--sap-accent-subtle);
+}
+
+.info-text {
+    font-size: 0.75rem;
+    color: var(--sap-text-secondary);
+    line-height: 1.4;
+}
+
+/* ====================================================================
+   Inline Processing Options Layout
+   ==================================================================== */
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.options-checklist-inline {
+    margin: 0;
+    display: inline-flex;
+}
+
+.options-checklist-inline label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.info-icon-inline {
+    font-size: 0.875rem;
+    color: var(--sap-brand-blue);
+    cursor: help;
+    transition: color 0.2s ease;
+    user-select: none;
+}
+
+.info-icon-inline:hover {
+    color: var(--sap-accent-subtle);
+}
+
+/* ====================================================================
+   Document Preview Section - Collapsible with Thumbnail
+   ==================================================================== */
+.preview-section {
+    background: var(--sap-tile-bg) !important;
+    border: 1px solid var(--sap-border-color) !important;
+    border-radius: 6px !important;
+    padding: 1rem !important;
+    margin: 1.5rem 0 !important;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+.preview-summary {
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: var(--sap-brand-blue) !important;
+    padding: 0.5rem !important;
+    border-radius: 4px !important;
+    transition: background 0.2s ease !important;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.preview-summary:hover {
+    background: #F5F5F5 !important;
+}
+
+/* Collapsible arrow icon animation */
+.collapse-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+    color: var(--sap-brand-blue);
+    font-weight: bold;
+}
+
+/* Rotate arrow when details is open */
+details[open] .collapse-arrow {
+    transform: rotate(90deg);
+}
+
+.preview-content {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sap-border-color);
+}
+
+.doc-metadata {
+    font-size: 0.875rem;
+    color: var(--sap-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.doc-metadata strong {
+    color: var(--sap-text-primary);
+    font-weight: 600;
+}
+
+/* Thumbnail container for zoom functionality */
+.thumbnail-container {
+    position: relative;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+.pdf-thumbnail {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Zoomable thumbnail - clickable */
+.pdf-thumbnail-zoomable {
+    cursor: zoom-in;
+}
+
+.pdf-thumbnail-zoomable:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Zoomed state - full screen overlay */
+.pdf-thumbnail-zoomed {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+    max-width: 90vw !important;
+    max-height: 90vh !important;
+    width: auto !important;
+    height: auto !important;
+    z-index: 10000 !important;
+    cursor: zoom-out !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important;
+    border-radius: 4px !important;
+    object-fit: contain !important;
+}
+
+/* Dark overlay background when zoomed */
+.zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    cursor: zoom-out;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive thumbnail sizing */
+@media (min-width: 769px) {
+    .pdf-thumbnail:not(.pdf-thumbnail-zoomed) {
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pdf-thumbnail:not(.pdf-thumbnail-zoomed) {
+        max-width: 100%;
+    }
+}
+
+/* ====================================================================
+   Thumbnail Grid Layout - Multiple Pages Display
+   ==================================================================== */
+.thumbnails-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.thumbnail-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.thumbnail-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sap-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.thumbnail-item .pdf-thumbnail {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.thumbnail-item .pdf-thumbnail-zoomable {
+    cursor: zoom-in;
+}
+
+.thumbnail-item .pdf-thumbnail-zoomable:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Responsive grid for mobile */
+@media (max-width: 768px) {
+    .thumbnails-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ====================================================================
+   Carousel Layout for Document Pages
+   ==================================================================== */
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.carousel-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    overflow: hidden;
+}
+
+.carousel-slide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.carousel-image {
+    max-width: 100%;
+    max-height: 600px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.carousel-button {
+    background: var(--sap-brand-blue) !important;
+    border: none !important;
+    color: white !important;
+    font-size: 2rem !important;
+    font-weight: bold !important;
+    width: 50px;
+    height: 50px;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+.carousel-button:hover:not(:disabled) {
+    background: var(--sap-accent-subtle) !important;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+.carousel-button:disabled {
+    background: #E0E0E0 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    opacity: 0.5;
+}
+
+.carousel-indicator {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--sap-text-secondary);
+    font-weight: 600;
+    margin-top: 1rem;
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* Responsive carousel for mobile */
+@media (max-width: 768px) {
+    .carousel-wrapper {
+        flex-direction: column;
+    }
+    
+    .carousel-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem !important;
+    }
+    
+    .carousel-container {
+        min-height: 300px;
+    }
+    
+    .carousel-image {
+        max-height: 400px;
+    }
+}
+
+/* ====================================================================
+   Processing Flow Visualization - Animated Status Steps
+   ==================================================================== */
+.processing-flow-container {
+    background: var(--sap-tile-bg);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0 2px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--sap-border-color);
+}
+
+.processing-flow-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--sap-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.processing-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding: 1rem 0;
+}
+
+/* Progress line connecting steps */
+.processing-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #E0E0E0;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+/* Active progress line */
+.progress-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    background: var(--sap-brand-blue);
+    transform: translateY(-50%);
+    transition: width 0.5s ease;
+    z-index: 1;
+}
+
+/* Individual step container */
+.processing-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    max-width: 120px;
+}
+
+/* Step circle/icon */
+.step-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    background: white;
+    border: 3px solid #E0E0E0;
+    color: #999;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Step states */
+.step-pending .step-circle {
+    background: white;
+    border-color: #E0E0E0;
+    color: #999;
+}
+
+.step-active .step-circle {
+    background: var(--sap-brand-blue);
+    border-color: var(--sap-brand-blue);
+    color: white;
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 0 0 rgba(91, 127, 149, 0.7);
+}
+
+.step-completed .step-circle {
+    background: var(--sap-positive);
+    border-color: var(--sap-positive);
+    color: white;
+    animation: checkmark 0.5s ease;
+}
+
+.step-failed .step-circle {
+    background: var(--sap-critical);
+    border-color: var(--sap-critical);
+    color: white;
+}
+
+/* Step labels */
+.step-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--sap-text-secondary);
+    max-width: 100px;
+    line-height: 1.2;
+    transition: color 0.3s ease;
+}
+
+.step-active .step-label {
+    color: var(--sap-brand-blue);
+    font-weight: 700;
+}
+
+.step-completed .step-label {
+    color: var(--sap-positive);
+}
+
+.step-failed .step-label {
+    color: var(--sap-critical);
+}
+
+/* Duration label */
+.step-duration {
+    font-size: 0.65rem;
+    color: var(--sap-text-secondary);
+    font-weight: 500;
+}
+
+/* Animations */
+@keyframes checkmark {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Spinner for active step */
+.step-active .step-circle::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border: 2px solid transparent;
+    border-top-color: var(--sap-brand-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Checkmark icon for completed steps */
+.step-completed .step-circle::before {
+    content: '✓';
+    font-size: 1.5rem;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+    .processing-steps {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .processing-steps::before {
+        width: 2px;
+        height: 100%;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+    }
+    
+    .progress-line {
+        width: 2px !important;
+        height: 0;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+    }
+    
+    .processing-step {
+        flex-direction: row;
+        max-width: 100%;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 1rem;
+    }
+    
+    .step-label {
+        text-align: left;
+        max-width: none;
+    }
+}

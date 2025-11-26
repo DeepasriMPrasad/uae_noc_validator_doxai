@@ -1,0 +1,47 @@
+{
+  "welcomeFile": "/dashboard/",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/logout",
+    "logoutPage": "/"
+  },
+  "routes": [
+    {
+      "source": "^/dashboard/(.*)$",
+      "target": "/dashboard/$1",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/api/(.*)$",
+      "target": "/api/$1",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/health$",
+      "target": "/health",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/ready$",
+      "target": "/ready",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "none"
+    },
+    {
+      "source": "^/metrics$",
+      "target": "/metrics",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/(.*)$",
+      "target": "/$1",
+      "destination": "uae-noc-validator-backend",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

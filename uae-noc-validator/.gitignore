@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+*.egg
+*copy*.py
+
+# Environment variables
+.env
+.env.local
+service_key.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application specific
+output/
+*.db
+*.log
+
+# Sensitive files
+config.json
+dox_client.json
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+*.bkp

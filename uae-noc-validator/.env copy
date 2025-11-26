@@ -1,0 +1,42 @@
+# =======================
+# SAP BTP UAA CONFIG
+# =======================
+
+UAA_URL=https://learning-fest-2-70ouhtic.authentication.eu12.hana.ondemand.com/oauth/token
+UAA_DOMAIN=authentication.eu12.hana.ondemand.com
+UAA_TENANT_MODE=shared
+UAA_SUBACCOUNT_ID=52a1d899-9f46-42f4-bc7a-e1b165aa09a8
+UAA_IDENTITY_ZONE=learning-fest-2-70ouhtic
+UAA_IDENTITY_ZONE_ID=52a1d899-9f46-42f4-bc7a-e1b165aa09a8
+UAA_TENANT_ID=52a1d899-9f46-42f4-bc7a-e1b165aa09a8
+UAA_ZONE_ID=52a1d899-9f46-42f4-bc7a-e1b165aa09a8
+
+CLIENT_ID=sb-1215a0b0-2eb4-469d-89f9-1a933e7b5e33!b1322472|dox-xsuaa-std-internal-production!b278037
+CLIENT_SECRET=7974b4e7-f6ac-4cdb-8de4-ab2009ff7067$apY8h4Ut--88x_pASSevLYBLtwjU_Qz2b-fDT0CzuD0=
+
+# xsappname
+XSAPPNAME=1215a0b0-2eb4-469d-89f9-1a933e7b5e33!b1322472|dox-xsuaa-std-internal-production!b278037
+
+# =======================
+# SAP DOX SERVICE CONFIG
+# =======================
+
+DOX_BASE_URL=https://aiservices-dox.cfapps.eu12.hana.ondemand.com/document-information-extraction/v1
+DOX_API_URL=https://api.authentication.eu12.hana.ondemand.com
+DOX_SWAGGER_ROUTE=/document-information-extraction/v1/
+DOX_BACKEND_URL=https://aiservices-dox.cfapps.eu12.hana.ondemand.com
+
+# =======================
+# APP CONFIG
+# =======================
+
+APP_PORT=7070
+APP_DEBUG=True
+
+# =======================
+# OPTIONAL / IF NEEDED
+# =======================
+
+HTML5_APPS_REPO_APP_HOST_ID=3f7b13de-2ebe-456e-ac77-6e7641ba9fa3
+SAAS_REGISTRY_ENABLED=true
+TENANT_UI_URL=https://learning-fest-2-70ouhtic.eu12-canary.doc.cloud.sap

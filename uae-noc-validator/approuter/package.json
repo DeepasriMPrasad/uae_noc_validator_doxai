@@ -1,0 +1,14 @@
+{
+  "name": "uae-noc-validator-approuter",
+  "version": "2.0.0",
+  "description": "Application Router for UAE NOC Validator",
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  },
+  "dependencies": {
+    "@sap/approuter": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
