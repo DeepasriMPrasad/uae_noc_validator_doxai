@@ -3980,6 +3980,40 @@ def delete_all_dox_documents():
 )
 def load_schema_fields(tab_click, reset_click, custom_fields):
     """Load and display schema fields from the schema JSON file with mandatory badges and weights"""
+    global SCHEMA_DATA, CONFIG
+    
+    ctx = callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else ""
+    
+    # If reset button clicked, restore defaults
+    if trigger_id == "schema-reset-btn":
+        try:
+            # Load default schema
+            default_schema_path = os.path.join(os.path.dirname(__file__), "defaults", "schema_default.json")
+            if os.path.exists(default_schema_path):
+                with open(default_schema_path, "r") as f:
+                    default_schema = json.load(f)
+                SCHEMA_DATA.clear()
+                SCHEMA_DATA.update(default_schema)
+                # Save to active schema file
+                with open(SCHEMA_FILE_PATH, "w") as f:
+                    json.dump(SCHEMA_DATA, f, indent=2)
+                print("Schema reset to defaults")
+            
+            # Load default config for field weights and mandatory fields
+            default_config_path = os.path.join(os.path.dirname(__file__), "defaults", "config_default.json")
+            if os.path.exists(default_config_path):
+                with open(default_config_path, "r") as f:
+                    default_config = json.load(f)
+                # Only restore schema-related config (field_weights, mandatory_fields)
+                CONFIG["field_weights"] = default_config.get("field_weights", {})
+                CONFIG["mandatory_fields"] = default_config.get("mandatory_fields", [])
+                with open("config.json", "w") as f:
+                    json.dump(CONFIG, f, indent=2)
+                print("Field weights and mandatory fields reset to defaults")
+        except Exception as e:
+            print(f"Error resetting schema: {e}")
+    
     schema_fields = SCHEMA_DATA.get("headerFields", [])
     mandatory_fields = CONFIG.get("mandatory_fields", [])
     field_weights = CONFIG.get("field_weights", {})
@@ -4439,6 +4473,26 @@ def delete_schema_field(n_clicks_list, ids):
 )
 def load_business_rules(tab_click, reset_click):
     """Load and display business rules from config"""
+    global CONFIG
+    
+    ctx = callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else ""
+    
+    # If reset button clicked, restore default validation rules
+    if trigger_id == "rules-reset-btn":
+        try:
+            default_config_path = os.path.join(os.path.dirname(__file__), "defaults", "config_default.json")
+            if os.path.exists(default_config_path):
+                with open(default_config_path, "r") as f:
+                    default_config = json.load(f)
+                # Only restore validation_rules
+                CONFIG["validation_rules"] = default_config.get("validation_rules", {})
+                with open("config.json", "w") as f:
+                    json.dump(CONFIG, f, indent=2)
+                print("Business rules reset to defaults")
+        except Exception as e:
+            print(f"Error resetting business rules: {e}")
+    
     validation_rules = CONFIG.get("validation_rules", {})
     
     if not validation_rules:

@@ -1,0 +1,501 @@
+{
+  "name": "uae_noc_schema_custom_runtime_v2",
+  "schemaDescription": "Runtime schema for UAE NOC / Affection Plan validation (extractable fields + runtime status fields)",
+  "documentType": "custom",
+  "documentTypeDescription": "",
+  "predefined": false,
+  "version": "2",
+  "created": "",
+  "settings": "",
+  "updated": "",
+  "state": "active",
+  "uiConfig": null,
+  "predefinedCategories": [],
+  "categories": [],
+  "headerFields": [
+    {
+      "name": "applicationNumber",
+      "description": "Unique application or transaction number",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "issuingAuthority",
+      "description": "Issuing authority (Dubai Municipality, Municipality Abu Dhabi City, etc.)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "documentTypeText",
+      "description": "Type of document (NOC Approval, Land Site Plan, Affection Plan, DCR, etc.)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "issueDate",
+      "description": "Document issue date",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "date",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "expiryDate",
+      "description": "Document expiry or validity end date (if applicable)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "date",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "documentStatus",
+      "description": "Status of the document (Approved, Pending, Expired, etc.)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "community",
+      "description": "Community or master development (e.g. Dubai Islands, Jebel Ali Hills)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "parcelId",
+      "description": "Parcel or affection plan number (e.g. 699269589)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "plotId",
+      "description": "Plot number or identifier (e.g. DIA-WE-N16-01 or Plot No. 28)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "landUse",
+      "description": "Land use classification (Residential, Commercial, Mixed Use, etc.)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "listOfValues",
+      "formatting": {
+        "values": [
+          { "name": "Residential", "label": "Residential" },
+          { "name": "Commercial", "label": "Commercial" },
+          { "name": "Mixed Use", "label": "Mixed Use" },
+          { "name": "Hotel", "label": "Hotel" },
+          { "name": "Industrial", "label": "Industrial" }
+        ]
+      },
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "plotAreaM2",
+      "description": "Plot area in square meters",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "number",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "far",
+      "description": "Floor Area Ratio (FAR) from guidelines (if present on the document)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "number",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "ownerName",
+      "description": "Owner or allottee name",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "nationality",
+      "description": "Nationality of the owner (if printed on the document)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "rightHoldType",
+      "description": "Type of right hold (Ownership, Allotment, Lease, etc.)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "listOfValues",
+      "formatting": {
+        "values": [
+          { "name": "Ownership", "label": "Ownership" },
+          { "name": "Allotment", "label": "Allotment" },
+          { "name": "Lease", "label": "Lease" },
+          { "name": "Inheritance", "label": "Inheritance" }
+        ]
+      },
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "allocationType",
+      "description": "Allocation type shown on the land information (e.g. Government Housing, Commercial)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "allocationDate",
+      "description": "Date of original allocation if present (Allocation Date)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "date",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "constructionStatus",
+      "description": "Construction status (e.g. Constructed, Not Constructed) if present on the plan",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "zone",
+      "description": "Municipality zone / sector (e.g. Zone Al Rahbah, Sector Rahbah_EE)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "approvalUrl",
+      "description": "Verification URL / QR reference (e.g. GIS or SmartHub validation URL)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "landlordOrDeveloper",
+      "description": "Developer / landlord entity (e.g. MERAAS ESTATES (L.L.C))",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "string",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "languageDetected",
+      "description": "Primary language of the document (Arabic, English, or Bilingual)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "listOfValues",
+      "formatting": {
+        "values": [
+          { "name": "Arabic", "label": "Arabic" },
+          { "name": "English", "label": "English" },
+          { "name": "Bilingual", "label": "Bilingual" }
+        ]
+      },
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "weightedConfidence",
+      "description": "Confidence score (0–1) of NOC approval based on model output and rule weights (runtime field)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "number",
+      "formatting": {},
+      "formattingTypeVersion": "1.0.0"
+    },
+    {
+      "name": "nocStatus",
+      "description": "Final NOC classification (Approved / Needs Review / Rejected) (runtime field)",
+      "label": "",
+      "categoryName": null,
+      "uiConfig": null,
+      "defaultExtractor": {},
+      "setupType": "static",
+      "setupTypeVersion": "2.0.0",
+      "setup": {
+        "language": [],
+        "type": "auto",
+        "priority": 1,
+        "modelArtifactId": []
+      },
+      "formattingType": "listOfValues",
+      "formatting": {
+        "values": [
+          { "name": "Approved", "label": "Approved" },
+          { "name": "Needs Review", "label": "Needs Review" },
+          { "name": "Rejected", "label": "Rejected" }
+        ]
+      },
+      "formattingTypeVersion": "1.0.0"
+    }
+  ],
+  "lineItemFields": []
+}
