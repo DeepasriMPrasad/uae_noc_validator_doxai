@@ -46,7 +46,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed  # Parallel proc
 
 # Dash Framework - Interactive web dashboard components
 import dash
-from dash import Dash, html, dcc, dash_table, Input, Output, State, no_update, callback_context
+from dash import Dash, html, dcc, dash_table, Input, Output, State, no_update, callback_context, ALL
 from dash.exceptions import PreventUpdate
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1734,10 +1734,6 @@ dash_app.layout = html.Div([
         # Status badges (show connection status)
         html.Div([
             html.Span(id="config-status", className="status-badge"),
-            html.Button([
-                html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
-                " Cleanup"
-            ], id="cleanup-button", className="cleanup-button", n_clicks=0),
         ], className="header-badges")
     ], className="header"),
     
@@ -2317,10 +2313,16 @@ dash_app.layout = html.Div([
                     html.Span(className="sap-icon sap-icon--history", style={"color": "var(--sap-brand-blue)"}),
                     html.Span("Document History", style={"marginLeft": "10px", "fontWeight": "600"})
                 ], className="history-title"),
-                html.Button([
-                    html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
-                    " Clear All"
-                ], id="clear-history-btn", className="sap-button sap-button--ghost sap-button--sm"),
+                html.Div([
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--refresh sap-icon--sm"),
+                        " Clear All"
+                    ], id="clear-history-btn", className="sap-button sap-button--ghost sap-button--sm"),
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
+                        " Delete All"
+                    ], id="cleanup-button", className="sap-button sap-button--negative sap-button--sm", n_clicks=0),
+                ], className="history-actions"),
             ], className="history-header"),
             
             # Status Filter Buttons
@@ -4018,7 +4020,12 @@ def load_business_rules(tab_click, reset_click):
                         html.Span(className="sap-icon sap-icon--rules"),
                         html.Span(f"{FRIENDLY_LABELS.get(field_name, field_name)}", style={"marginLeft": "8px"})
                     ], className="rule-card-title"),
-                    html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
+                    html.Div([
+                        html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
+                        html.Button([
+                            html.Span(className="sap-icon sap-icon--delete sap-icon--sm")
+                        ], id={"type": "delete-rule-btn", "index": field_name}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
+                    ], className="rule-card-actions"),
                 ], className="rule-card-header"),
                 html.Div([
                     html.Div([
@@ -4038,6 +4045,46 @@ def load_business_rules(tab_click, reset_click):
         )
     
     return rule_items
+
+
+# Callback to delete a rule
+@dash_app.callback(
+    Output("business-rules-list", "children", allow_duplicate=True),
+    Input({"type": "delete-rule-btn", "index": ALL}, "n_clicks"),
+    State({"type": "delete-rule-btn", "index": ALL}, "id"),
+    prevent_initial_call=True
+)
+def delete_rule(n_clicks_list, ids):
+    """Delete a business rule when the delete button is clicked"""
+    ctx = callback_context
+    if not ctx.triggered or not any(n_clicks_list):
+        raise PreventUpdate
+    
+    # Find which button was clicked
+    triggered_id = ctx.triggered[0]["prop_id"]
+    if triggered_id == ".":
+        raise PreventUpdate
+    
+    # Parse the pattern-matching ID
+    import ast
+    try:
+        id_str = triggered_id.replace(".n_clicks", "")
+        button_id = ast.literal_eval(id_str)
+        field_name = button_id.get("index")
+    except:
+        raise PreventUpdate
+    
+    if field_name and field_name in CONFIG.get("validation_rules", {}):
+        del CONFIG["validation_rules"][field_name]
+        # Optionally save to config file
+        try:
+            with open("config.json", "w") as f:
+                json.dump(CONFIG, f, indent=2)
+        except Exception as e:
+            print(f"Error saving config: {e}")
+    
+    # Reload and return updated rules list
+    return load_business_rules.__wrapped__(None, None)
 
 
 # Callback to toggle Add Rule modal

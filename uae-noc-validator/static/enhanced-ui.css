@@ -725,6 +725,24 @@
     font-size: 1rem;
 }
 
+.sap-button--negative {
+    background: var(--sap-critical);
+    color: white;
+    border-color: var(--sap-critical);
+}
+
+.sap-button--negative:hover {
+    background: #B22222;
+    border-color: #B22222;
+}
+
+/* History Actions Container */
+.history-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 /* ====================================================================
    Rule Configuration Cards
    ==================================================================== */
@@ -773,6 +791,38 @@
 
 .rule-card-body {
     padding: 1.25rem;
+}
+
+.rule-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rule-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--sap-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rule-delete-btn:hover {
+    background: var(--sap-critical-bg);
+    border-color: var(--sap-critical);
+    color: var(--sap-critical);
+}
+
+.rule-delete-btn .sap-icon {
+    width: 14px;
+    height: 14px;
 }
 
 .rule-param {
