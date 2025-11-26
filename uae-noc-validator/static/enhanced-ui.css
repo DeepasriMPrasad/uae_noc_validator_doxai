@@ -738,7 +738,7 @@
     border-color: #B22222;
 }
 
-/* Cleanup Status Message */
+/* Cleanup Status Message with auto-fade animation */
 .cleanup-status-message {
     padding: 0.75rem 1rem;
     margin: 0.75rem 1rem;
@@ -749,12 +749,20 @@
     background: rgba(16, 126, 62, 0.1);
     border: 1px solid rgba(16, 126, 62, 0.3);
     color: var(--sap-positive);
+    animation: fadeOutAfter60s 60s forwards;
 }
 
 .cleanup-status-message:empty {
     display: none;
     padding: 0;
     margin: 0;
+    animation: none;
+}
+
+@keyframes fadeOutAfter60s {
+    0% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; height: 0; padding: 0; margin: 0; overflow: hidden; }
 }
 
 /* ====================================================================
@@ -1251,8 +1259,10 @@
 .status-filters {
     display: flex;
     gap: 0.5rem;
+    padding: 0 1rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .filter-btn {
@@ -1319,17 +1329,20 @@
 .history-controls {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
+    margin: 0 1rem 1rem 1rem;
+    padding: 0.75rem 1rem;
     background: #fafbfc;
     border-radius: 6px;
     border: 1px solid var(--sap-border-color);
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .search-container {
-    flex: 1;
+    flex: 0 0 280px;
     position: relative;
-    max-width: 350px;
+    min-width: 200px;
+    max-width: 320px;
 }
 
 .search-input {
@@ -1353,6 +1366,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
 }
 
 .sort-label {
@@ -1362,7 +1376,8 @@
 }
 
 .sort-dropdown {
-    width: 200px;
+    width: 220px;
+    min-width: 180px;
     font-size: 0.875rem;
 }
 
