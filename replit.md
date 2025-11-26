@@ -41,10 +41,22 @@ Preferred communication style: Simple, everyday language.
 - 4-tab navigation system with state management via dcc.Store
 - Professional processing animation with step-by-step progress indicators
 - All user-facing emojis replaced with SAP Fiori-style icon classes
-- Schema Configuration screen for managing extraction fields
-- Business Rules Configuration screen for validation rule management
-- Dashboard with metrics cards (Total, Approved, Review, Rejected)
-- Document history list with clear all functionality
+- SAP logo in header for enterprise branding
+- Schema Configuration screen with:
+  - Mandatory field badges (orange "MANDATORY" tag)
+  - Weight percentage display for each field
+  - Add Field modal dialog with form inputs (field name, description, type, weight, mandatory checkbox)
+  - Download Config button for exporting schema configuration as JSON
+  - Edit and delete action buttons per field
+- Business Rules Configuration screen with:
+  - Visual rule cards showing rule details
+  - Add Rule modal dialog with dynamic form (rule type dropdown, conditional parameters)
+  - Download Rules button for exporting validation rules as JSON
+- Dashboard with:
+  - Metrics cards (Total, Approved, Review, Rejected)
+  - Document history list with clear all functionality
+  - Search input for filtering documents
+  - Sort dropdown (by date, processing time, confidence, status)
 
 ### Backend Architecture
 

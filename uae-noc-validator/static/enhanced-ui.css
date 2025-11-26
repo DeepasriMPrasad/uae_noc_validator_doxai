@@ -976,3 +976,428 @@
 .mb-3 { margin-bottom: 1.5rem !important; }
 .text-center { text-align: center; }
 .text-muted { color: var(--sap-text-secondary); }
+
+/* ====================================================================
+   Form Components
+   ==================================================================== */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sap-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: var(--sap-text-primary);
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 0 0 3px rgba(91, 127, 149, 0.15);
+}
+
+.form-input::placeholder {
+    color: var(--sap-text-secondary);
+}
+
+.form-dropdown {
+    font-size: 0.875rem;
+}
+
+.form-dropdown .Select-control {
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+}
+
+.form-checklist {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-checklist label {
+    font-size: 0.875rem;
+    color: var(--sap-text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Modal Enhancements */
+.modal-wide {
+    max-width: 500px;
+    width: 90%;
+}
+
+.dialog-content.modal-wide {
+    padding: 2rem;
+}
+
+/* ====================================================================
+   Schema Field Card with Weight & Mandatory
+   ==================================================================== */
+.schema-field-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: var(--sap-tile-bg);
+    border: 1px solid var(--sap-border-color);
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+    gap: 1rem;
+}
+
+.schema-field-card:hover {
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.field-drag-handle {
+    cursor: grab;
+    color: var(--sap-text-secondary);
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.field-drag-handle:hover {
+    opacity: 1;
+}
+
+.field-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.field-name {
+    font-weight: 600;
+    color: var(--sap-text-primary);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.field-description {
+    font-size: 0.8125rem;
+    color: var(--sap-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.field-badges {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.badge-mandatory {
+    background: #fcf1e3;
+    color: #b8860b;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-weight {
+    background: #e8f4fc;
+    color: var(--sap-brand-blue);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+}
+
+.field-type-badge {
+    background: #f0f0f0;
+    color: var(--sap-text-secondary);
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.field-type-badge.date {
+    background: #edf5e1;
+    color: #107e3e;
+}
+
+.field-type-badge.number,
+.field-type-badge.currency {
+    background: #f0e6f5;
+    color: #7c3aed;
+}
+
+.field-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.field-action-btn {
+    border: none;
+    background: none;
+    padding: 0.375rem;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--sap-text-secondary);
+    transition: all 0.2s;
+}
+
+.field-action-btn:hover {
+    background: #f5f5f5;
+    color: var(--sap-brand-blue);
+}
+
+.field-action-btn.delete:hover {
+    background: var(--sap-critical-bg);
+    color: var(--sap-critical);
+}
+
+/* ====================================================================
+   Dashboard Search & Sort Controls
+   ==================================================================== */
+.history-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #fafbfc;
+    border-radius: 6px;
+    border: 1px solid var(--sap-border-color);
+}
+
+.search-container {
+    flex: 1;
+    position: relative;
+    max-width: 350px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+    border: 1px solid var(--sap-border-color);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: var(--sap-text-primary);
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 0 0 3px rgba(91, 127, 149, 0.15);
+}
+
+.sort-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sort-label {
+    font-size: 0.875rem;
+    color: var(--sap-text-secondary);
+    white-space: nowrap;
+}
+
+.sort-dropdown {
+    width: 200px;
+    font-size: 0.875rem;
+}
+
+/* ====================================================================
+   Document Row Enhancements
+   ==================================================================== */
+.document-row {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: var(--sap-tile-bg);
+    border: 1px solid var(--sap-border-color);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    gap: 1rem;
+}
+
+.document-row:hover {
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.doc-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7fa;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.doc-icon .sap-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--sap-brand-blue);
+}
+
+.doc-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.doc-name {
+    font-weight: 600;
+    color: var(--sap-text-primary);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.doc-meta {
+    font-size: 0.8125rem;
+    color: var(--sap-text-secondary);
+}
+
+.doc-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.doc-status.approved {
+    background: #e8f5e9;
+    color: #107e3e;
+}
+
+.doc-status.needs-review {
+    background: #fcf1e3;
+    color: #b8860b;
+}
+
+.doc-status.rejected {
+    background: var(--sap-critical-bg);
+    color: var(--sap-critical);
+}
+
+.doc-confidence {
+    font-weight: 700;
+    color: var(--sap-text-primary);
+    min-width: 50px;
+    text-align: right;
+}
+
+.doc-date {
+    font-size: 0.8125rem;
+    color: var(--sap-text-secondary);
+    min-width: 100px;
+    text-align: right;
+}
+
+/* ====================================================================
+   Rule Card Enhancements
+   ==================================================================== */
+.rule-card {
+    background: var(--sap-tile-bg);
+    border: 1px solid var(--sap-border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.rule-card:hover {
+    border-color: var(--sap-brand-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rule-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--sap-border-color);
+}
+
+.rule-card-title {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--sap-text-primary);
+}
+
+.rule-type-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rule-type-badge.date_age {
+    background: #edf5e1;
+    color: #107e3e;
+}
+
+.rule-type-badge.whitelist {
+    background: #e8f4fc;
+    color: var(--sap-brand-blue);
+}
+
+.rule-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rule-param {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.rule-param-label {
+    color: var(--sap-text-secondary);
+    min-width: 100px;
+}
+
+.rule-param-value {
+    color: var(--sap-text-primary);
+    font-weight: 500;
+}

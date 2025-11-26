@@ -60,6 +60,24 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border-radius: 0 !important;
     margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.header-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 12px;
+    filter: brightness(1.1);
+}
+
+.header-content {
+    flex: 1;
 }
 
 .header-title {

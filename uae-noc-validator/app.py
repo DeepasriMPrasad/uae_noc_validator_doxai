@@ -1719,6 +1719,12 @@ dash_app.layout = html.Div([
     # HEADER SECTION
     # ───────────────────────────────────────────────────────────────────────
     html.Div([
+        # SAP Logo
+        html.Div([
+            html.Img(src="/static/sap-logo.png", className="header-logo", alt="SAP Logo"),
+        ], className="header-logo-container"),
+        
+        # App Title and Description
         html.Div([
             html.H1(CONFIG.get("app_name", "AI Validator"), className="header-title"),
             html.P(f"{CONFIG.get('description', 'AI-Powered Document Validation')} • v{APP_VERSION}", 
@@ -1777,10 +1783,6 @@ dash_app.layout = html.Div([
     
     # Cleanup status message
     dcc.Store(id="cleanup-trigger", data=0),
-    dcc.Store(id="active-tab", data="validator"),
-    dcc.Store(id="document-history", data=[]),
-    dcc.Store(id="schema-fields-store", data=[]),
-    dcc.Store(id="business-rules-store", data={}),
     
     # ═══════════════════════════════════════════════════════════════════════
     # TAB CONTENT: VALIDATOR (Main Processing View)
@@ -2074,6 +2076,10 @@ dash_app.layout = html.Div([
                 ], className="config-title"),
                 html.Div([
                     html.Button([
+                        html.Span(className="sap-icon sap-icon--download sap-icon--sm"),
+                        " Download Config"
+                    ], id="schema-download-btn", className="sap-button sap-button--ghost sap-button--sm"),
+                    html.Button([
                         html.Span(className="sap-icon sap-icon--refresh sap-icon--sm"),
                         " Reset"
                     ], id="schema-reset-btn", className="sap-button sap-button--ghost sap-button--sm"),
@@ -2086,7 +2092,7 @@ dash_app.layout = html.Div([
             
             html.Div([
                 html.Div([
-                    html.P("Configure the extraction schema for UAE NOC documents. Drag fields to reorder priority, add new fields, or remove existing ones. Changes affect how the AI extracts information from documents.")
+                    html.P("Configure the extraction schema for UAE NOC documents. Set field weights for confidence scoring, mark mandatory fields, and manage extraction fields. Changes affect how the AI extracts information from documents.")
                 ], className="config-description"),
                 
                 html.Div(id="schema-fields-list", className="draggable-list"),
@@ -2094,9 +2100,70 @@ dash_app.layout = html.Div([
                 html.Button([
                     html.Span(className="sap-icon sap-icon--add"),
                     " Add Field"
-                ], id="add-schema-field-btn", className="add-item-button"),
+                ], id="add-schema-field-btn", className="add-item-button", n_clicks=0),
             ], className="config-body"),
         ], className="config-container"),
+        
+        # Add Field Modal Dialog
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--add sap-icon--lg", style={"color": "var(--sap-brand-blue)", "marginRight": "10px"}),
+                    html.Span("Add New Schema Field", style={"fontWeight": "700", "fontSize": "1.1rem"})
+                ], style={"display": "flex", "alignItems": "center", "marginBottom": "1.5rem"}),
+                
+                # Form Fields
+                html.Div([
+                    html.Label("Field Name *", className="form-label"),
+                    dcc.Input(id="new-field-name", type="text", placeholder="e.g., applicationNumber", className="form-input"),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Label("Description", className="form-label"),
+                    dcc.Input(id="new-field-description", type="text", placeholder="Brief description of the field", className="form-input"),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Div([
+                        html.Label("Field Type", className="form-label"),
+                        dcc.Dropdown(
+                            id="new-field-type",
+                            options=[
+                                {"label": "String", "value": "string"},
+                                {"label": "Date", "value": "date"},
+                                {"label": "Number", "value": "number"},
+                                {"label": "Currency", "value": "currency"},
+                            ],
+                            value="string",
+                            clearable=False,
+                            className="form-dropdown"
+                        ),
+                    ], style={"flex": "1"}),
+                    html.Div([
+                        html.Label("Weight (%)", className="form-label"),
+                        dcc.Input(id="new-field-weight", type="number", value=5, min=0, max=100, className="form-input"),
+                    ], style={"flex": "1"}),
+                ], className="form-row"),
+                
+                html.Div([
+                    dcc.Checklist(
+                        id="new-field-mandatory",
+                        options=[{"label": " Mark as Mandatory Field", "value": "mandatory"}],
+                        value=[],
+                        className="form-checklist"
+                    ),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Button("Cancel", id="add-field-cancel", className="dialog-button-cancel"),
+                    html.Button("Add Field", id="add-field-confirm", className="dialog-button-confirm"),
+                ], style={"display": "flex", "gap": "10px", "justifyContent": "flex-end", "marginTop": "1.5rem"})
+            ], className="dialog-content modal-wide")
+        ], id="add-field-modal", className="dialog-overlay", style={"display": "none"}),
+        
+        # Download Component
+        dcc.Download(id="download-config"),
+        
     ], id="tab-content-schema", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
     
     # ═══════════════════════════════════════════════════════════════════════
@@ -2110,6 +2177,10 @@ dash_app.layout = html.Div([
                     html.Span("Business Rules Configuration", style={"marginLeft": "12px", "fontWeight": "700", "fontSize": "1.125rem"})
                 ], className="config-title"),
                 html.Div([
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--download sap-icon--sm"),
+                        " Download Rules"
+                    ], id="rules-download-btn", className="sap-button sap-button--ghost sap-button--sm"),
                     html.Button([
                         html.Span(className="sap-icon sap-icon--refresh sap-icon--sm"),
                         " Reset"
@@ -2131,9 +2202,65 @@ dash_app.layout = html.Div([
                 html.Button([
                     html.Span(className="sap-icon sap-icon--add"),
                     " Add Rule"
-                ], id="add-rule-btn", className="add-item-button"),
+                ], id="add-rule-btn", className="add-item-button", n_clicks=0),
             ], className="config-body"),
         ], className="config-container"),
+        
+        # Add Rule Modal Dialog
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--add sap-icon--lg", style={"color": "var(--sap-brand-blue)", "marginRight": "10px"}),
+                    html.Span("Add New Validation Rule", style={"fontWeight": "700", "fontSize": "1.1rem"})
+                ], style={"display": "flex", "alignItems": "center", "marginBottom": "1.5rem"}),
+                
+                # Form Fields
+                html.Div([
+                    html.Label("Target Field *", className="form-label"),
+                    dcc.Dropdown(
+                        id="new-rule-field",
+                        options=[{"label": FRIENDLY_LABELS.get(f, f), "value": f} for f in ALL_FIELDS],
+                        placeholder="Select field to validate",
+                        className="form-dropdown"
+                    ),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Label("Rule Type *", className="form-label"),
+                    dcc.Dropdown(
+                        id="new-rule-type",
+                        options=[
+                            {"label": "Date Age Limit", "value": "date_age"},
+                            {"label": "Whitelist (Allowed Values)", "value": "whitelist"},
+                        ],
+                        placeholder="Select rule type",
+                        className="form-dropdown"
+                    ),
+                ], className="form-group"),
+                
+                # Dynamic parameters based on rule type
+                html.Div(id="rule-params-container", children=[
+                    html.Div([
+                        html.Label("Maximum Age (Months)", className="form-label"),
+                        dcc.Input(id="new-rule-max-age", type="number", value=6, min=1, className="form-input"),
+                    ], className="form-group"),
+                ]),
+                
+                html.Div([
+                    html.Label("Error Message", className="form-label"),
+                    dcc.Input(id="new-rule-error", type="text", placeholder="e.g., Document is too old", className="form-input"),
+                ], className="form-group"),
+                
+                html.Div([
+                    html.Button("Cancel", id="add-rule-cancel", className="dialog-button-cancel"),
+                    html.Button("Add Rule", id="add-rule-confirm", className="dialog-button-confirm"),
+                ], style={"display": "flex", "gap": "10px", "justifyContent": "flex-end", "marginTop": "1.5rem"})
+            ], className="dialog-content modal-wide")
+        ], id="add-rule-modal", className="dialog-overlay", style={"display": "none"}),
+        
+        # Download Component for Rules
+        dcc.Download(id="download-rules"),
+        
     ], id="tab-content-rules", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
     
     # ═══════════════════════════════════════════════════════════════════════
@@ -2188,13 +2315,45 @@ dash_app.layout = html.Div([
             html.Div([
                 html.Div([
                     html.Span(className="sap-icon sap-icon--history", style={"color": "var(--sap-brand-blue)"}),
-                    html.Span("Document History", style={"marginLeft": "10px"})
+                    html.Span("Document History", style={"marginLeft": "10px", "fontWeight": "600"})
                 ], className="history-title"),
                 html.Button([
                     html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
                     " Clear All"
                 ], id="clear-history-btn", className="sap-button sap-button--ghost sap-button--sm"),
             ], className="history-header"),
+            
+            # Search and Sort Controls
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--search", style={"position": "absolute", "left": "12px", "top": "50%", "transform": "translateY(-50%)", "color": "var(--sap-text-secondary)"}),
+                    dcc.Input(
+                        id="history-search",
+                        type="text",
+                        placeholder="Search documents...",
+                        className="search-input",
+                        debounce=True
+                    ),
+                ], className="search-container"),
+                html.Div([
+                    html.Label("Sort by:", className="sort-label"),
+                    dcc.Dropdown(
+                        id="history-sort",
+                        options=[
+                            {"label": "Date (Newest)", "value": "date_desc"},
+                            {"label": "Date (Oldest)", "value": "date_asc"},
+                            {"label": "Processing Time (Fastest)", "value": "time_asc"},
+                            {"label": "Processing Time (Slowest)", "value": "time_desc"},
+                            {"label": "Status", "value": "status"},
+                            {"label": "Confidence (Highest)", "value": "conf_desc"},
+                            {"label": "Confidence (Lowest)", "value": "conf_asc"},
+                        ],
+                        value="date_desc",
+                        clearable=False,
+                        className="sort-dropdown"
+                    ),
+                ], className="sort-container"),
+            ], className="history-controls"),
             
             html.Div(id="document-history-list", children=[
                 html.Div([
@@ -2214,6 +2373,10 @@ dash_app.layout = html.Div([
     dcc.Store(id="pdf-content-store", data=None),   # Stores uploaded PDF content
     dcc.Store(id="carousel-index", data=0),         # Current carousel page index
     dcc.Store(id="carousel-total", data=0),         # Total number of pages in carousel
+    dcc.Store(id="active-tab", data="validator"),   # Current active tab
+    dcc.Store(id="document-history", data=[]),      # Document history storage
+    dcc.Store(id="custom-fields", data=[]),         # Custom schema fields added by user
+    dcc.Store(id="custom-rules", data={}),          # Custom validation rules added by user
     dcc.Interval(id="poll-interval", interval=1000, disabled=True),  # 1 sec polling
     
 ], className="app-container")
@@ -3672,12 +3835,18 @@ def delete_all_dox_documents():
 @dash_app.callback(
     Output("schema-fields-list", "children"),
     [Input("tab-schema", "n_clicks"),
-     Input("schema-reset-btn", "n_clicks")],
+     Input("schema-reset-btn", "n_clicks"),
+     Input("custom-fields", "data")],
     prevent_initial_call=True
 )
-def load_schema_fields(tab_click, reset_click):
-    """Load and display schema fields from the schema JSON file"""
+def load_schema_fields(tab_click, reset_click, custom_fields):
+    """Load and display schema fields from the schema JSON file with mandatory badges and weights"""
     schema_fields = SCHEMA_DATA.get("headerFields", [])
+    mandatory_fields = CONFIG.get("mandatory_fields", [])
+    field_weights = CONFIG.get("field_weights", {})
+    
+    # Calculate total weight for percentage
+    total_weight = sum(field_weights.values()) if field_weights else 1
     
     if not schema_fields:
         return html.Div([
@@ -3692,28 +3861,95 @@ def load_schema_fields(tab_click, reset_click):
         field_desc = field.get("description", "No description")
         field_type = field.get("formattingType", "string")
         
-        # Determine type badge class
-        type_badge_class = f"item-type-badge {field_type}"
+        # Check if mandatory
+        is_mandatory = field_name in mandatory_fields
+        
+        # Get weight and calculate percentage
+        weight = field_weights.get(field_name, 0)
+        weight_percentage = round((weight / total_weight) * 100, 1) if total_weight > 0 and weight > 0 else 0
+        
+        # Build badges
+        badges = []
+        if is_mandatory:
+            badges.append(html.Span("Mandatory", className="badge-mandatory"))
+        if weight > 0:
+            badges.append(html.Span(f"{weight_percentage}%", className="badge-weight"))
+        
+        # Field type badge
+        type_class = f"field-type-badge {field_type}"
         
         field_items.append(
             html.Div([
-                html.Span(className="sap-icon sap-icon--drag drag-handle"),
+                html.Span(className="sap-icon sap-icon--drag field-drag-handle"),
                 html.Div([
-                    html.Div(field_name, className="item-name"),
-                    html.Div(field_desc, className="item-description"),
-                ], className="item-content"),
-                html.Span(field_type.upper(), className=type_badge_class),
+                    html.Div([
+                        html.Span(FRIENDLY_LABELS.get(field_name, field_name)),
+                    ], className="field-name"),
+                    html.Div(field_desc, className="field-description"),
+                ], className="field-info"),
+                html.Div(badges, className="field-badges"),
+                html.Span(field_type.upper(), className=type_class),
                 html.Div([
                     html.Button(
+                        html.Span(className="sap-icon sap-icon--edit sap-icon--sm"),
+                        className="field-action-btn",
+                        id={"type": "edit-field", "index": i}
+                    ),
+                    html.Button(
                         html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
-                        className="item-action-btn delete",
+                        className="field-action-btn delete",
                         id={"type": "remove-field", "index": i}
                     )
-                ], className="item-actions")
-            ], className="draggable-item", id={"type": "schema-field", "index": i})
+                ], className="field-actions")
+            ], className="schema-field-card", id={"type": "schema-field", "index": i})
         )
     
     return field_items
+
+
+# Callback to toggle Add Field modal
+@dash_app.callback(
+    Output("add-field-modal", "style"),
+    [Input("add-schema-field-btn", "n_clicks"),
+     Input("add-field-cancel", "n_clicks"),
+     Input("add-field-confirm", "n_clicks")],
+    prevent_initial_call=True
+)
+def toggle_add_field_modal(add_clicks, cancel_clicks, confirm_clicks):
+    """Toggle the Add Field modal dialog"""
+    ctx = callback_context
+    if not ctx.triggered:
+        return {"display": "none"}
+    
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    if trigger_id == "add-schema-field-btn":
+        return {"display": "flex"}
+    else:
+        return {"display": "none"}
+
+
+# Callback to download config JSON
+@dash_app.callback(
+    Output("download-config", "data"),
+    Input("schema-download-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def download_schema_config(n_clicks):
+    """Generate and download the schema configuration as JSON"""
+    if n_clicks:
+        config_export = {
+            "field_weights": CONFIG.get("field_weights", {}),
+            "mandatory_fields": CONFIG.get("mandatory_fields", []),
+            "schema_fields": SCHEMA_DATA.get("headerFields", []),
+            "export_date": datetime.now().isoformat()
+        }
+        return dict(
+            content=json.dumps(config_export, indent=2),
+            filename="schema_config.json",
+            type="application/json"
+        )
+    return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3781,6 +4017,71 @@ def load_business_rules(tab_click, reset_click):
     return rule_items
 
 
+# Callback to toggle Add Rule modal
+@dash_app.callback(
+    Output("add-rule-modal", "style"),
+    [Input("add-rule-btn", "n_clicks"),
+     Input("add-rule-cancel", "n_clicks"),
+     Input("add-rule-confirm", "n_clicks")],
+    prevent_initial_call=True
+)
+def toggle_add_rule_modal(add_clicks, cancel_clicks, confirm_clicks):
+    """Toggle the Add Rule modal dialog"""
+    ctx = callback_context
+    if not ctx.triggered:
+        return {"display": "none"}
+    
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    if trigger_id == "add-rule-btn":
+        return {"display": "flex"}
+    else:
+        return {"display": "none"}
+
+
+# Callback to show dynamic form fields based on rule type
+@dash_app.callback(
+    Output("rule-params-container", "children"),
+    Input("new-rule-type", "value"),
+    prevent_initial_call=True
+)
+def update_rule_params_form(rule_type):
+    """Update the form fields based on selected rule type"""
+    if rule_type == "date_age":
+        return html.Div([
+            html.Label("Maximum Age (Months)", className="form-label"),
+            dcc.Input(id="new-rule-max-age", type="number", value=6, min=1, className="form-input"),
+        ], className="form-group")
+    elif rule_type == "whitelist":
+        return html.Div([
+            html.Label("Allowed Values (comma-separated)", className="form-label"),
+            dcc.Input(id="new-rule-whitelist", type="text", placeholder="e.g., Value1, Value2, Value3", className="form-input"),
+        ], className="form-group")
+    else:
+        return html.Div()
+
+
+# Callback to download rules JSON
+@dash_app.callback(
+    Output("download-rules", "data"),
+    Input("rules-download-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def download_rules_config(n_clicks):
+    """Generate and download the validation rules as JSON"""
+    if n_clicks:
+        rules_export = {
+            "validation_rules": CONFIG.get("validation_rules", {}),
+            "export_date": datetime.now().isoformat()
+        }
+        return dict(
+            content=json.dumps(rules_export, indent=2),
+            filename="validation_rules.json",
+            type="application/json"
+        )
+    return None
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # DASHBOARD TAB CALLBACKS
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3793,12 +4094,14 @@ def load_business_rules(tab_click, reset_click):
      Output("document-history-list", "children")],
     [Input("tab-dashboard", "n_clicks"),
      Input("job-result-store", "data"),
-     Input("clear-history-btn", "n_clicks")],
+     Input("clear-history-btn", "n_clicks"),
+     Input("history-search", "value"),
+     Input("history-sort", "value")],
     [State("document-history", "data")],
     prevent_initial_call=True
 )
-def update_dashboard(tab_click, job_data, clear_click, history_data):
-    """Update dashboard metrics and document history list"""
+def update_dashboard(tab_click, job_data, clear_click, search_text, sort_by, history_data):
+    """Update dashboard metrics and document history list with search/sort"""
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
     
@@ -3830,31 +4133,63 @@ def update_dashboard(tab_click, job_data, clear_click, history_data):
             html.Div("Upload a document to get started", className="history-empty-subtext"),
         ], className="history-empty")
     else:
-        history_rows = []
-        for job in reversed(completed_jobs[-20:]):  # Show last 20 documents
-            result = job.result
-            filename = result.get("filename", "Unknown")
-            status = result.get("status", "Unknown")
-            confidence = result.get("confidence", 0)
-            processing_time = result.get("processing_time", 0)
-            
-            status_class = "doc-status " + status.lower().replace(" ", "-")
-            
-            history_rows.append(
-                html.Div([
-                    html.Div([html.Span(className="sap-icon sap-icon--document")], className="doc-icon"),
-                    html.Div([
-                        html.Div(filename, className="doc-name"),
-                        html.Div([
-                            html.Span(f"Processed in {processing_time}s"),
-                        ], className="doc-meta"),
-                    ], className="doc-info"),
-                    html.Span(status, className=status_class),
-                    html.Span(f"{confidence*100:.0f}%", className="doc-confidence"),
-                ], className="document-row")
-            )
+        # Apply search filter
+        filtered_jobs = completed_jobs
+        if search_text:
+            search_lower = search_text.lower()
+            filtered_jobs = [j for j in completed_jobs if search_lower in j.result.get("filename", "").lower() or 
+                             search_lower in j.result.get("status", "").lower()]
         
-        history_content = html.Div(history_rows)
+        # Apply sorting
+        sort_by = sort_by or "date_desc"
+        if sort_by == "date_desc":
+            filtered_jobs = list(reversed(filtered_jobs))
+        elif sort_by == "date_asc":
+            pass  # Default order
+        elif sort_by == "time_asc":
+            filtered_jobs = sorted(filtered_jobs, key=lambda j: j.result.get("processing_time", 0))
+        elif sort_by == "time_desc":
+            filtered_jobs = sorted(filtered_jobs, key=lambda j: j.result.get("processing_time", 0), reverse=True)
+        elif sort_by == "conf_desc":
+            filtered_jobs = sorted(filtered_jobs, key=lambda j: j.result.get("confidence", 0), reverse=True)
+        elif sort_by == "conf_asc":
+            filtered_jobs = sorted(filtered_jobs, key=lambda j: j.result.get("confidence", 0))
+        elif sort_by == "status":
+            status_order = {"Approved": 0, "Needs Review": 1, "Rejected": 2}
+            filtered_jobs = sorted(filtered_jobs, key=lambda j: status_order.get(j.result.get("status", ""), 3))
+        
+        if not filtered_jobs:
+            history_content = html.Div([
+                html.Span(className="sap-icon sap-icon--search sap-icon--xxl"),
+                html.Div("No documents match your search", className="history-empty-text"),
+                html.Div("Try a different search term", className="history-empty-subtext"),
+            ], className="history-empty")
+        else:
+            history_rows = []
+            for job in filtered_jobs[:20]:  # Show up to 20 documents
+                result = job.result
+                filename = result.get("filename", "Unknown")
+                status = result.get("status", "Unknown")
+                confidence = result.get("confidence", 0)
+                processing_time = result.get("processing_time", 0)
+                
+                status_class = "doc-status " + status.lower().replace(" ", "-")
+                
+                history_rows.append(
+                    html.Div([
+                        html.Div([html.Span(className="sap-icon sap-icon--document")], className="doc-icon"),
+                        html.Div([
+                            html.Div(filename, className="doc-name"),
+                            html.Div([
+                                html.Span(f"Processed in {processing_time}s"),
+                            ], className="doc-meta"),
+                        ], className="doc-info"),
+                        html.Span(status, className=status_class),
+                        html.Span(f"{confidence*100:.0f}%", className="doc-confidence"),
+                    ], className="document-row")
+                )
+            
+            history_content = html.Div(history_rows)
     
     return (str(total), str(approved), str(review), str(rejected), history_content)
 
