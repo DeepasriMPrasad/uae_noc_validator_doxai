@@ -1728,15 +1728,42 @@ dash_app.layout = html.Div([
         # Status badges (show connection status)
         html.Div([
             html.Span(id="config-status", className="status-badge"),
-            # Cleanup button (discreet, in header)
-            html.Button("🗑️ Cleanup", id="cleanup-button", className="cleanup-button", n_clicks=0),
+            html.Button([
+                html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
+                " Cleanup"
+            ], id="cleanup-button", className="cleanup-button", n_clicks=0),
         ], className="header-badges")
     ], className="header"),
+    
+    # ───────────────────────────────────────────────────────────────────────
+    # TAB NAVIGATION
+    # ───────────────────────────────────────────────────────────────────────
+    html.Div([
+        html.Button([
+            html.Span(className="sap-icon sap-icon--validate"),
+            html.Span("Validator")
+        ], id="tab-validator", className="tab-button active", n_clicks=0),
+        html.Button([
+            html.Span(className="sap-icon sap-icon--schema"),
+            html.Span("Schema Config")
+        ], id="tab-schema", className="tab-button", n_clicks=0),
+        html.Button([
+            html.Span(className="sap-icon sap-icon--rules"),
+            html.Span("Business Rules")
+        ], id="tab-rules", className="tab-button", n_clicks=0),
+        html.Button([
+            html.Span(className="sap-icon sap-icon--dashboard"),
+            html.Span("Dashboard")
+        ], id="tab-dashboard", className="tab-button", n_clicks=0),
+    ], className="tab-navigation"),
     
     # Confirmation dialog (hidden by default)
     html.Div([
         html.Div([
-            html.H3("⚠️ Confirm Document Cleanup", style={"marginTop": "0"}),
+            html.Div([
+                html.Span(className="sap-icon sap-icon--warning sap-icon--lg", style={"color": "var(--sap-warning)", "marginRight": "10px"}),
+                html.Span("Confirm Document Cleanup", style={"fontWeight": "700"})
+            ], style={"display": "flex", "alignItems": "center", "marginBottom": "1rem"}),
             html.P("This will permanently delete ALL documents from SAP DOX.", 
                    style={"marginBottom": "10px"}),
             html.P("This operation cannot be undone!", 
@@ -1750,7 +1777,15 @@ dash_app.layout = html.Div([
     
     # Cleanup status message
     dcc.Store(id="cleanup-trigger", data=0),
+    dcc.Store(id="active-tab", data="validator"),
+    dcc.Store(id="document-history", data=[]),
+    dcc.Store(id="schema-fields-store", data=[]),
+    dcc.Store(id="business-rules-store", data={}),
     
+    # ═══════════════════════════════════════════════════════════════════════
+    # TAB CONTENT: VALIDATOR (Main Processing View)
+    # ═══════════════════════════════════════════════════════════════════════
+    html.Div([
     # ───────────────────────────────────────────────────────────────────────
     # MAIN CONTENT AREA - TWO-COLUMN LAYOUT
     # ───────────────────────────────────────────────────────────────────────
@@ -1763,7 +1798,10 @@ dash_app.layout = html.Div([
             
             # Upload Section
             html.Div([
-                html.H3("📤 Document Upload", className="panel-title"),
+                html.H3([
+                    html.Span(className="sap-icon sap-icon--upload", style={"marginRight": "8px", "color": "var(--sap-brand-blue)"}),
+                    "Document Upload"
+                ], className="panel-title"),
                 
                 # File upload component (drag & drop or click to select)
                 dcc.Upload(
@@ -1797,8 +1835,7 @@ dash_app.layout = html.Div([
                             value=[],
                             className="options-checklist-inline"
                         ),
-                        html.Span("ℹ️", 
-                                 className="info-icon-inline",
+                        html.Span(className="sap-icon sap-icon--info sap-icon--sm info-icon-inline",
                                  title="When enabled, documents with all mandatory fields at ≥70% confidence are automatically approved at 100%. Simplifies scoring for clear-cut cases."),
                     ], className="option-row"),
                     
@@ -1815,8 +1852,7 @@ dash_app.layout = html.Div([
                             value=[],
                             className="options-checklist-inline"
                         ),
-                        html.Span("ℹ️", 
-                                 className="info-icon-inline",
+                        html.Span(className="sap-icon sap-icon--info sap-icon--sm info-icon-inline",
                                  title="Runs additional validation checks beyond AI confidence, such as date freshness limits and authority whitelists. May downgrade approval status if rules fail."),
                     ], className="option-row"),
                 ], className="options-panel"),
@@ -1840,8 +1876,9 @@ dash_app.layout = html.Div([
             # ───────────────────────────────────────────────────────────────
             html.Details([
                 html.Summary([
-                    html.Span("▸ ", id="log-arrow", className="collapse-arrow"),
-                    html.Span("📜 PROCESSING LOGS"),
+                    html.Span("", id="log-arrow", className="collapse-arrow"),
+                    html.Span(className="sap-icon sap-icon--log", style={"marginRight": "8px"}),
+                    html.Span("PROCESSING LOGS"),
                     html.Span(id="log-status-badge", className="log-status-badge"),
                 ], className="log-summary"),
                 html.Div([
@@ -1871,7 +1908,10 @@ dash_app.layout = html.Div([
             # ───────────────────────────────────────────────────────────────
             html.Div(id="processing-flow-section", className="processing-flow-container",
                     style={"display": "none"}, children=[
-                html.Div("⚙️ PROCESSING PIPELINE", className="processing-flow-title"),
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--processing", style={"marginRight": "8px"}),
+                    "PROCESSING PIPELINE"
+                ], className="processing-flow-title"),
                 html.Div(id="processing-flow-viz", className="processing-steps"),
             ]),
             
@@ -1883,8 +1923,9 @@ dash_app.layout = html.Div([
             # ───────────────────────────────────────────────────────────────
             html.Details([
                 html.Summary([
-                    html.Span("▸ ", id="preview-arrow", className="collapse-arrow"),
-                    html.Span("🔎 DOCUMENT PREVIEW")
+                    html.Span("", id="preview-arrow", className="collapse-arrow"),
+                    html.Span(className="sap-icon sap-icon--search", style={"marginRight": "8px"}),
+                    html.Span("DOCUMENT PREVIEW")
                 ], className="preview-summary"),
                 html.Div([
                     # Document metadata row
@@ -1908,7 +1949,10 @@ dash_app.layout = html.Div([
             # Mandatory Fields Table
             # ───────────────────────────────────────────────────────────────
             html.Div([
-                html.H3("📋 Mandatory Fields Evaluation", className="panel-title"),
+                html.H3([
+                    html.Span(className="sap-icon sap-icon--list", style={"marginRight": "8px", "color": "var(--sap-brand-blue)"}),
+                    "Mandatory Fields Evaluation"
+                ], className="panel-title"),
                 dash_table.DataTable(
                     id="table-mandatory",
                     style_table={"overflowX": "auto"},
@@ -1938,7 +1982,10 @@ dash_app.layout = html.Div([
             # All Fields Table (Complete breakdown)
             # ───────────────────────────────────────────────────────────────
             html.Div([
-                html.H3("📊 All Extracted Fields", className="panel-title"),
+                html.H3([
+                    html.Span(className="sap-icon sap-icon--analytics", style={"marginRight": "8px", "color": "var(--sap-brand-blue)"}),
+                    "All Extracted Fields"
+                ], className="panel-title"),
                 html.Div([
                     html.Span("● ", className="sap-success", style={"fontWeight": "bold"}),
                     html.Span("Weighted Field (contributes to score)", 
@@ -1991,8 +2038,10 @@ dash_app.layout = html.Div([
             # Confidence Distribution Chart
             # ───────────────────────────────────────────────────────────────
             html.Div([
-                html.H3("📈 Field Confidence Distribution", className="panel-title", 
-                        style={"marginTop": 0, "borderBottom": "none"}),
+                html.H3([
+                    html.Span(className="sap-icon sap-icon--analytics", style={"marginRight": "8px", "color": "var(--sap-brand-blue)"}),
+                    "Field Confidence Distribution"
+                ], className="panel-title", style={"marginTop": 0, "borderBottom": "none"}),
                 dcc.Graph(id="graph-explain", className="confidence-chart"),
             ], className="chart-container"),
             
@@ -2000,7 +2049,10 @@ dash_app.layout = html.Div([
             # Raw JSON Output (for debugging/technical analysis)
             # ───────────────────────────────────────────────────────────────
             html.Details([
-                html.Summary("📘 VIEW DOCUMENT EXTRACTION JSON", className="json-summary"),
+                html.Summary([
+                    html.Span(className="sap-icon sap-icon--document", style={"marginRight": "8px"}),
+                    "VIEW DOCUMENT EXTRACTION JSON"
+                ], className="json-summary"),
                 html.Pre(id="json-output", className="json-output")
             ], className="json-details", style={"display": "block" if CONFIG.get("ui", {}).get("show_raw_json", True) else "none"}),
           
@@ -2008,6 +2060,151 @@ dash_app.layout = html.Div([
         ], className="right-panel"),
         
     ], className="main-content"),
+    ], id="tab-content-validator", className="tab-content"),
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TAB CONTENT: SCHEMA CONFIGURATION
+    # ═══════════════════════════════════════════════════════════════════════
+    html.Div([
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--schema sap-icon--lg", style={"color": "var(--sap-brand-blue)"}),
+                    html.Span("Schema Configuration", style={"marginLeft": "12px", "fontWeight": "700", "fontSize": "1.125rem"})
+                ], className="config-title"),
+                html.Div([
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--refresh sap-icon--sm"),
+                        " Reset"
+                    ], id="schema-reset-btn", className="sap-button sap-button--ghost sap-button--sm"),
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--save sap-icon--sm"),
+                        " Save Changes"
+                    ], id="schema-save-btn", className="sap-button sap-button--primary sap-button--sm"),
+                ], className="config-actions")
+            ], className="config-header"),
+            
+            html.Div([
+                html.Div([
+                    html.P("Configure the extraction schema for UAE NOC documents. Drag fields to reorder priority, add new fields, or remove existing ones. Changes affect how the AI extracts information from documents.")
+                ], className="config-description"),
+                
+                html.Div(id="schema-fields-list", className="draggable-list"),
+                
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--add"),
+                    " Add Field"
+                ], id="add-schema-field-btn", className="add-item-button"),
+            ], className="config-body"),
+        ], className="config-container"),
+    ], id="tab-content-schema", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TAB CONTENT: BUSINESS RULES CONFIGURATION
+    # ═══════════════════════════════════════════════════════════════════════
+    html.Div([
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--rules sap-icon--lg", style={"color": "var(--sap-brand-blue)"}),
+                    html.Span("Business Rules Configuration", style={"marginLeft": "12px", "fontWeight": "700", "fontSize": "1.125rem"})
+                ], className="config-title"),
+                html.Div([
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--refresh sap-icon--sm"),
+                        " Reset"
+                    ], id="rules-reset-btn", className="sap-button sap-button--ghost sap-button--sm"),
+                    html.Button([
+                        html.Span(className="sap-icon sap-icon--save sap-icon--sm"),
+                        " Save Changes"
+                    ], id="rules-save-btn", className="sap-button sap-button--primary sap-button--sm"),
+                ], className="config-actions")
+            ], className="config-header"),
+            
+            html.Div([
+                html.Div([
+                    html.P("Configure validation rules that are applied after AI extraction. These rules can downgrade approval status if documents fail validation checks (e.g., date freshness, authority whitelists).")
+                ], className="config-description"),
+                
+                html.Div(id="business-rules-list", className="draggable-list"),
+                
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--add"),
+                    " Add Rule"
+                ], id="add-rule-btn", className="add-item-button"),
+            ], className="config-body"),
+        ], className="config-container"),
+    ], id="tab-content-rules", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TAB CONTENT: DASHBOARD
+    # ═══════════════════════════════════════════════════════════════════════
+    html.Div([
+        # Metrics Cards Row
+        html.Div([
+            # Total Documents Card
+            html.Div([
+                html.Div([
+                    html.Span("Total Documents", className="metric-label"),
+                    html.Div([html.Span(className="sap-icon sap-icon--document")], className="metric-icon total"),
+                ], className="metric-header"),
+                html.Div(id="metric-total", className="metric-value", children="0"),
+                html.Div("All time processed", className="metric-trend"),
+            ], className="metric-card"),
+            
+            # Approved Card
+            html.Div([
+                html.Div([
+                    html.Span("Approved", className="metric-label"),
+                    html.Div([html.Span(className="sap-icon sap-icon--success")], className="metric-icon approved"),
+                ], className="metric-header"),
+                html.Div(id="metric-approved", className="metric-value", children="0"),
+                html.Div("Passed validation", className="metric-trend"),
+            ], className="metric-card"),
+            
+            # Needs Review Card
+            html.Div([
+                html.Div([
+                    html.Span("Needs Review", className="metric-label"),
+                    html.Div([html.Span(className="sap-icon sap-icon--warning")], className="metric-icon review"),
+                ], className="metric-header"),
+                html.Div(id="metric-review", className="metric-value", children="0"),
+                html.Div("Requires attention", className="metric-trend"),
+            ], className="metric-card"),
+            
+            # Rejected Card
+            html.Div([
+                html.Div([
+                    html.Span("Rejected", className="metric-label"),
+                    html.Div([html.Span(className="sap-icon sap-icon--error")], className="metric-icon rejected"),
+                ], className="metric-header"),
+                html.Div(id="metric-rejected", className="metric-value", children="0"),
+                html.Div("Failed validation", className="metric-trend"),
+            ], className="metric-card"),
+        ], className="metrics-grid"),
+        
+        # Document History Section
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--history", style={"color": "var(--sap-brand-blue)"}),
+                    html.Span("Document History", style={"marginLeft": "10px"})
+                ], className="history-title"),
+                html.Button([
+                    html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
+                    " Clear All"
+                ], id="clear-history-btn", className="sap-button sap-button--ghost sap-button--sm"),
+            ], className="history-header"),
+            
+            html.Div(id="document-history-list", children=[
+                html.Div([
+                    html.Span(className="sap-icon sap-icon--document sap-icon--xxl"),
+                    html.Div("No documents processed yet", className="history-empty-text"),
+                    html.Div("Upload a document to get started", className="history-empty-subtext"),
+                ], className="history-empty")
+            ]),
+        ], className="history-container"),
+    ], id="tab-content-dashboard", className="tab-content", style={"display": "none", "padding": "1.5rem"}),
     
     # ───────────────────────────────────────────────────────────────────────
     # HIDDEN COMPONENTS - Data storage and update triggers
@@ -2040,12 +2237,93 @@ def update_config_status(_):
     Runs on app load and periodically during polling.
     
     Returns:
-        str: Status message for badge
+        HTML: Status indicator with icon
     """
     if config_valid:
-        return "🟢 SAP DOX AI Connected"
+        return html.Span([
+            html.Span(className="status-dot connected"),
+            " SAP DOX AI Connected"
+        ], className="status-indicator")
     else:
-        return "🟡 SAP DOX Not Configured"
+        return html.Span([
+            html.Span(className="status-dot warning"),
+            " SAP DOX Not Configured"
+        ], className="status-indicator")
+
+
+@dash_app.callback(
+    [Output("tab-content-validator", "style"),
+     Output("tab-content-schema", "style"),
+     Output("tab-content-rules", "style"),
+     Output("tab-content-dashboard", "style"),
+     Output("tab-validator", "className"),
+     Output("tab-schema", "className"),
+     Output("tab-rules", "className"),
+     Output("tab-dashboard", "className"),
+     Output("active-tab", "data")],
+    [Input("tab-validator", "n_clicks"),
+     Input("tab-schema", "n_clicks"),
+     Input("tab-rules", "n_clicks"),
+     Input("tab-dashboard", "n_clicks")],
+    prevent_initial_call=True
+)
+def switch_tabs(validator_clicks, schema_clicks, rules_clicks, dashboard_clicks):
+    """
+    Handle tab switching between Validator, Schema Config, Business Rules, and Dashboard
+    """
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    # Default styles (all hidden)
+    styles = {
+        "validator": {"display": "none"},
+        "schema": {"display": "none", "padding": "1.5rem"},
+        "rules": {"display": "none", "padding": "1.5rem"},
+        "dashboard": {"display": "none", "padding": "1.5rem"}
+    }
+    
+    # Default classes (all inactive)
+    classes = {
+        "validator": "tab-button",
+        "schema": "tab-button",
+        "rules": "tab-button",
+        "dashboard": "tab-button"
+    }
+    
+    # Show selected tab
+    if trigger_id == "tab-validator":
+        styles["validator"] = {"display": "block"}
+        classes["validator"] = "tab-button active"
+        active = "validator"
+    elif trigger_id == "tab-schema":
+        styles["schema"] = {"display": "block", "padding": "1.5rem"}
+        classes["schema"] = "tab-button active"
+        active = "schema"
+    elif trigger_id == "tab-rules":
+        styles["rules"] = {"display": "block", "padding": "1.5rem"}
+        classes["rules"] = "tab-button active"
+        active = "rules"
+    elif trigger_id == "tab-dashboard":
+        styles["dashboard"] = {"display": "block", "padding": "1.5rem"}
+        classes["dashboard"] = "tab-button active"
+        active = "dashboard"
+    else:
+        raise PreventUpdate
+    
+    return (
+        styles["validator"],
+        styles["schema"],
+        styles["rules"],
+        styles["dashboard"],
+        classes["validator"],
+        classes["schema"],
+        classes["rules"],
+        classes["dashboard"],
+        active
+    )
 
 @dash_app.callback(
     Output("cleanup-dialog", "style"),
@@ -2109,20 +2387,32 @@ def confirm_cleanup(n_clicks):
         # Hide dialog
         dialog_style = {"display": "none"}
         
-        # Show result message
+        # Show result message with SAP icons
         if response.status_code == 200:
             deleted_count = result.get("deleted_documents", 0)
             if deleted_count > 0:
-                status_msg = f"🗑️ Successfully deleted {deleted_count} documents from SAP DOX"
+                status_msg = html.Span([
+                    html.Span(className="sap-icon sap-icon--delete sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-success)"}),
+                    f"Successfully deleted {deleted_count} documents from SAP DOX"
+                ])
             else:
-                status_msg = "ℹ️ No documents found to delete"
+                status_msg = html.Span([
+                    html.Span(className="sap-icon sap-icon--info sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-brand-blue)"}),
+                    "No documents found to delete"
+                ])
         else:
-            status_msg = f"⚠️ Cleanup failed: {result.get('error', 'Unknown error')}"
+            status_msg = html.Span([
+                html.Span(className="sap-icon sap-icon--warning sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-warning)"}),
+                f"Cleanup failed: {result.get('error', 'Unknown error')}"
+            ])
         
         return (n_clicks, dialog_style, status_msg)
         
     except Exception as e:
-        return (n_clicks, {"display": "none"}, f"❌ Cleanup error: {str(e)}")
+        return (n_clicks, {"display": "none"}, html.Span([
+            html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-error)"}),
+            f"Cleanup error: {str(e)}"
+        ]))
 
 @dash_app.callback(
     [Output("current-job-id", "data"),
@@ -2273,12 +2563,18 @@ def start_processing(content, filename, options_value_approx, options_value_vali
     return (
         job_id,  # Store job ID for polling
         False,   # Enable polling (poll_interval.disabled = False)
-        f"⏳ Processing {filename}...",
+        html.Span([
+            html.Span(className="sap-icon sap-icon--processing", style={"marginRight": "8px", "animation": "spin 1s linear infinite"}),
+            f"Processing {filename}..."
+        ]),
         {"display": "block"},  # Show progress bar
         True,    # Disable upload button during processing
         {"display": "none"},  # Hide verdict banner
         empty_gauge,          # Clear gauge chart
-        html.Div("Processing document...", style={"textAlign": "center", "color": "var(--sap-gray-7)"}),  # Clear summary
+        html.Div([
+            html.Span(className="sap-icon sap-icon--processing sap-icon--lg", style={"marginRight": "10px", "animation": "spin 1s linear infinite", "color": "var(--sap-brand-blue)"}),
+            "Processing document..."
+        ], style={"textAlign": "center", "color": "var(--sap-gray-7)", "display": "flex", "alignItems": "center", "justifyContent": "center"}),  # Clear summary
         [],      # Clear mandatory table data
         [],      # Clear all fields table data
         empty_chart,  # Clear bar chart
@@ -2322,13 +2618,13 @@ def update_processing_flow(n_intervals, job_id):
     # Show flow section
     section_style = {"display": "block"}
     
-    # Define processing steps with their progress thresholds
+    # Define processing steps with their progress thresholds (using SAP icon classes)
     steps = [
-        {"label": "Upload", "icon": "📤", "threshold": 20},
-        {"label": "AI Extract", "icon": "🤖", "threshold": 70},
-        {"label": "Calculate", "icon": "📊", "threshold": 80},
-        {"label": "Validate", "icon": "✓", "threshold": 90},
-        {"label": "Complete", "icon": "🎉", "threshold": 100}
+        {"label": "Upload", "icon_class": "sap-icon--upload", "threshold": 20},
+        {"label": "AI Extract", "icon_class": "sap-icon--ai", "threshold": 70},
+        {"label": "Calculate", "icon_class": "sap-icon--analytics", "threshold": 80},
+        {"label": "Validate", "icon_class": "sap-icon--validate", "threshold": 90},
+        {"label": "Complete", "icon_class": "sap-icon--success", "threshold": 100}
     ]
     
     # Determine status of each step based on job progress
@@ -2347,10 +2643,12 @@ def update_processing_flow(n_intervals, job_id):
         else:
             step_class = "processing-step step-pending"
         
-        # Create step element
+        # Create step element with SAP icon
         step_elements.append(
             html.Div([
-                html.Div(step["icon"], className="step-circle"),
+                html.Div([
+                    html.Span(className=f"sap-icon {step['icon_class']}")
+                ], className="step-circle"),
                 html.Div(step["label"], className="step-label")
             ], className=step_class)
         )
@@ -2427,22 +2725,26 @@ def update_preview_section(job_data):
     processing_time = result.get("processing_time", 0)
     thumbnails = result.get("thumbnails", [])
     
-    # Build metadata display
+    # Build metadata display with SAP icons
     metadata_content = html.Div([
         html.Div([
-            html.Strong("📄 Filename: "),
+            html.Span(className="sap-icon sap-icon--document sap-icon--sm", style={"marginRight": "6px", "color": "var(--sap-brand-blue)"}),
+            html.Strong("Filename: "),
             html.Span(filename)
-        ], style={"marginBottom": "8px"}),
+        ], style={"marginBottom": "8px", "display": "flex", "alignItems": "center"}),
         html.Div([
-            html.Strong("📊 Pages: "),
+            html.Span(className="sap-icon sap-icon--pages sap-icon--sm", style={"marginRight": "6px", "color": "var(--sap-brand-blue)"}),
+            html.Strong("Pages: "),
             html.Span(f"{num_pages}"),
-            html.Span(" • ", style={"margin": "0 8px"}),
-            html.Strong("💾 Size: "),
+            html.Span(" | ", style={"margin": "0 10px", "color": "var(--sap-gray-5)"}),
+            html.Span(className="sap-icon sap-icon--storage sap-icon--sm", style={"marginRight": "6px", "color": "var(--sap-brand-blue)"}),
+            html.Strong("Size: "),
             html.Span(f"{file_size_mb} MB"),
-            html.Span(" • ", style={"margin": "0 8px"}),
-            html.Strong("⏱️ Processing Time: "),
+            html.Span(" | ", style={"margin": "0 10px", "color": "var(--sap-gray-5)"}),
+            html.Span(className="sap-icon sap-icon--clock sap-icon--sm", style={"marginRight": "6px", "color": "var(--sap-brand-blue)"}),
+            html.Strong("Processing Time: "),
             html.Span(f"{processing_time}s")
-        ])
+        ], style={"display": "flex", "alignItems": "center", "flexWrap": "wrap"})
     ])
     
     # Build carousel display - show only first thumbnail initially
@@ -2620,11 +2922,17 @@ def poll_job_status(n_intervals, job_id):
     # Check if job is complete (success or failure)
     # ───────────────────────────────────────────────────────────────────────
     if job.status in ("completed", "failed"):
-        # Stop polling and update final status
+        # Stop polling and update final status with SAP icons
         if job.status == "completed":
-            status_msg = f"✔️ Processing complete: {job.result.get('filename', 'document')}"
+            status_msg = html.Span([
+                html.Span(className="sap-icon sap-icon--success sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-success)"}),
+                f"Processing complete: {job.result.get('filename', 'document')}"
+            ])
         else:
-            status_msg = f"❌ Processing failed: {job.error}"
+            status_msg = html.Span([
+                html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "8px", "color": "var(--sap-error)"}),
+                f"Processing failed: {job.error}"
+            ])
         
         # IMPORTANT: Return ALL 10 outputs to prevent infinite loop
         return (
@@ -2809,40 +3117,52 @@ def update_results(job_data):
     
     if status == "Approved":
         summary_points.append(
-            html.Li("✔️ All key fields extracted with high confidence.", 
-                   className="sap-success")
+            html.Li([
+                html.Span(className="sap-icon sap-icon--success sap-icon--sm", style={"marginRight": "8px"}),
+                "All key fields extracted with high confidence."
+            ], className="sap-success")
         )
     else:
         # Check confidence first
         if confidence_would_approve and has_validation_issues:
             # High confidence but validation failed
             summary_points.append(
-                html.Li(f"⚠️ Overall confidence ({conf*100:.0f}%) meets the {approval_threshold*100:.0f}% threshold. Status downgraded to 'Needs Review' due to business rule failures.", 
-                       className="sap-warning")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--warning sap-icon--sm", style={"marginRight": "8px"}),
+                    f"Overall confidence ({conf*100:.0f}%) meets the {approval_threshold*100:.0f}% threshold. Status downgraded to 'Needs Review' due to business rule failures."
+                ], className="sap-warning")
             )
         elif conf > review_threshold and conf < approval_threshold:
             # Moderate confidence
             summary_points.append(
-                html.Li(f"ℹ️ Overall confidence ({conf*100:.0f}%) is between {review_threshold*100:.0f}% and {approval_threshold*100:.0f}% thresholds.",
-                       className="sap-warning")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--info sap-icon--sm", style={"marginRight": "8px"}),
+                    f"Overall confidence ({conf*100:.0f}%) is between {review_threshold*100:.0f}% and {approval_threshold*100:.0f}% thresholds."
+                ], className="sap-warning")
             )
         elif conf <= review_threshold:
             # Low confidence (at or below threshold)
             summary_points.append(
-                html.Li(f"❌ Overall confidence ({conf*100:.0f}%) is at or below {review_threshold*100:.0f}% threshold.",
-                       className="sap-error")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "8px"}),
+                    f"Overall confidence ({conf*100:.0f}%) is at or below {review_threshold*100:.0f}% threshold."
+                ], className="sap-error")
             )
         
         # Add specific field issues
         if missing_fields:
             summary_points.append(
-                html.Li(f"❌ Missing critical fields: {', '.join(missing_fields)}", 
-                       className="sap-error")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--error sap-icon--sm", style={"marginRight": "8px"}),
+                    f"Missing critical fields: {', '.join(missing_fields)}"
+                ], className="sap-error")
             )
         if low_conf_fields:
             summary_points.append(
-                html.Li(f"⚠️ Low confidence fields (below 70%): {', '.join(low_conf_fields)}", 
-                       className="sap-warning")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--warning sap-icon--sm", style={"marginRight": "8px"}),
+                    f"Low confidence fields (below 70%): {', '.join(low_conf_fields)}"
+                ], className="sap-warning")
             )
     
     # Add validation results if present
@@ -2852,8 +3172,10 @@ def update_results(job_data):
         # Only show success message if fields were actually validated
         if validation_result.get("valid") and fields_validated > 0:
             summary_points.append(
-                html.Li("✔️ All business rule validations passed.", 
-                       className="sap-success")
+                html.Li([
+                    html.Span(className="sap-icon sap-icon--success sap-icon--sm", style={"marginRight": "8px"}),
+                    "All business rule validations passed."
+                ], className="sap-success")
             )
         elif not validation_result.get("valid"):
             violations = validation_result.get("violations", [])
@@ -2869,8 +3191,11 @@ def update_results(job_data):
             )
     
     summary = html.Div([
-        html.H4(f"📝 Analysis Report", className="summary-title"),
-        html.P(f"Document: {filename} • {num_pages} pages processed"),
+        html.H4([
+            html.Span(className="sap-icon sap-icon--report", style={"marginRight": "10px", "color": "var(--sap-brand-blue)"}),
+            "Analysis Report"
+        ], className="summary-title"),
+        html.P(f"Document: {filename} | {num_pages} pages processed"),
         html.Ul(summary_points, className="summary-list")
     ])
     
@@ -2964,6 +3289,8 @@ dash_app.index_string = """
 {%favicon%}
 {%css%}
 <link rel="stylesheet" href="/static/professional-ui.css">
+<link rel="stylesheet" href="/static/sap-icons.css">
+<link rel="stylesheet" href="/static/enhanced-ui.css">
 </head>
 <body>
 {%app_entry%}
@@ -3337,6 +3664,200 @@ def delete_all_dox_documents():
             "error_type": type(e).__name__,
             "traceback": error_trace
         }), 500
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCHEMA CONFIGURATION TAB CALLBACKS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@dash_app.callback(
+    Output("schema-fields-list", "children"),
+    [Input("tab-schema", "n_clicks"),
+     Input("schema-reset-btn", "n_clicks")],
+    prevent_initial_call=True
+)
+def load_schema_fields(tab_click, reset_click):
+    """Load and display schema fields from the schema JSON file"""
+    schema_fields = SCHEMA_DATA.get("headerFields", [])
+    
+    if not schema_fields:
+        return html.Div([
+            html.Span(className="sap-icon sap-icon--document sap-icon--xxl"),
+            html.Div("No schema fields configured", className="history-empty-text"),
+            html.Div("Add fields to configure extraction", className="history-empty-subtext"),
+        ], className="empty-state")
+    
+    field_items = []
+    for i, field in enumerate(schema_fields):
+        field_name = field.get("name", f"field_{i}")
+        field_desc = field.get("description", "No description")
+        field_type = field.get("formattingType", "string")
+        
+        # Determine type badge class
+        type_badge_class = f"item-type-badge {field_type}"
+        
+        field_items.append(
+            html.Div([
+                html.Span(className="sap-icon sap-icon--drag drag-handle"),
+                html.Div([
+                    html.Div(field_name, className="item-name"),
+                    html.Div(field_desc, className="item-description"),
+                ], className="item-content"),
+                html.Span(field_type.upper(), className=type_badge_class),
+                html.Div([
+                    html.Button(
+                        html.Span(className="sap-icon sap-icon--delete sap-icon--sm"),
+                        className="item-action-btn delete",
+                        id={"type": "remove-field", "index": i}
+                    )
+                ], className="item-actions")
+            ], className="draggable-item", id={"type": "schema-field", "index": i})
+        )
+    
+    return field_items
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# BUSINESS RULES TAB CALLBACKS  
+# ═══════════════════════════════════════════════════════════════════════════
+
+@dash_app.callback(
+    Output("business-rules-list", "children"),
+    [Input("tab-rules", "n_clicks"),
+     Input("rules-reset-btn", "n_clicks")],
+    prevent_initial_call=True
+)
+def load_business_rules(tab_click, reset_click):
+    """Load and display business rules from config"""
+    validation_rules = CONFIG.get("validation_rules", {})
+    
+    if not validation_rules:
+        return html.Div([
+            html.Span(className="sap-icon sap-icon--rules sap-icon--xxl"),
+            html.Div("No business rules configured", className="history-empty-text"),
+            html.Div("Add rules to enable validation", className="history-empty-subtext"),
+        ], className="empty-state")
+    
+    rule_items = []
+    for i, (field_name, rule) in enumerate(validation_rules.items()):
+        rule_type = rule.get("type", "unknown")
+        error_msg = rule.get("error_message", "Validation failed")
+        
+        # Create rule details based on type
+        if rule_type == "date_age":
+            max_months = rule.get("max_age_months", 6)
+            details = f"Maximum age: {max_months} months"
+        elif rule_type == "whitelist":
+            allowed = rule.get("allowed_values", [])
+            details = f"{len(allowed)} allowed values"
+        else:
+            details = "Custom rule"
+        
+        rule_items.append(
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Span(className="sap-icon sap-icon--rules"),
+                        html.Span(f"{FRIENDLY_LABELS.get(field_name, field_name)}", style={"marginLeft": "8px"})
+                    ], className="rule-card-title"),
+                    html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
+                ], className="rule-card-header"),
+                html.Div([
+                    html.Div([
+                        html.Span("Rule Type:", className="rule-param-label"),
+                        html.Span(rule_type.replace("_", " ").title(), className="rule-param-value"),
+                    ], className="rule-param"),
+                    html.Div([
+                        html.Span("Details:", className="rule-param-label"),
+                        html.Span(details, className="rule-param-value"),
+                    ], className="rule-param"),
+                    html.Div([
+                        html.Span("Error Message:", className="rule-param-label"),
+                        html.Span(error_msg, className="rule-param-value"),
+                    ], className="rule-param"),
+                ], className="rule-card-body"),
+            ], className="rule-card")
+        )
+    
+    return rule_items
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DASHBOARD TAB CALLBACKS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@dash_app.callback(
+    [Output("metric-total", "children"),
+     Output("metric-approved", "children"),
+     Output("metric-review", "children"),
+     Output("metric-rejected", "children"),
+     Output("document-history-list", "children")],
+    [Input("tab-dashboard", "n_clicks"),
+     Input("job-result-store", "data"),
+     Input("clear-history-btn", "n_clicks")],
+    [State("document-history", "data")],
+    prevent_initial_call=True
+)
+def update_dashboard(tab_click, job_data, clear_click, history_data):
+    """Update dashboard metrics and document history list"""
+    ctx = callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
+    
+    # Handle clear history
+    if trigger_id == "clear-history-btn":
+        return (
+            "0", "0", "0", "0",
+            html.Div([
+                html.Span(className="sap-icon sap-icon--document sap-icon--xxl"),
+                html.Div("No documents processed yet", className="history-empty-text"),
+                html.Div("Upload a document to get started", className="history-empty-subtext"),
+            ], className="history-empty")
+        )
+    
+    # Calculate metrics from processing jobs
+    with job_lock:
+        completed_jobs = [j for j in processing_jobs.values() if j.status == "completed" and j.result]
+    
+    total = len(completed_jobs)
+    approved = sum(1 for j in completed_jobs if j.result.get("status") == "Approved")
+    review = sum(1 for j in completed_jobs if j.result.get("status") == "Needs Review")
+    rejected = sum(1 for j in completed_jobs if j.result.get("status") == "Rejected")
+    
+    # Build history list
+    if not completed_jobs:
+        history_content = html.Div([
+            html.Span(className="sap-icon sap-icon--document sap-icon--xxl"),
+            html.Div("No documents processed yet", className="history-empty-text"),
+            html.Div("Upload a document to get started", className="history-empty-subtext"),
+        ], className="history-empty")
+    else:
+        history_rows = []
+        for job in reversed(completed_jobs[-20:]):  # Show last 20 documents
+            result = job.result
+            filename = result.get("filename", "Unknown")
+            status = result.get("status", "Unknown")
+            confidence = result.get("confidence", 0)
+            processing_time = result.get("processing_time", 0)
+            
+            status_class = "doc-status " + status.lower().replace(" ", "-")
+            
+            history_rows.append(
+                html.Div([
+                    html.Div([html.Span(className="sap-icon sap-icon--document")], className="doc-icon"),
+                    html.Div([
+                        html.Div(filename, className="doc-name"),
+                        html.Div([
+                            html.Span(f"Processed in {processing_time}s"),
+                        ], className="doc-meta"),
+                    ], className="doc-info"),
+                    html.Span(status, className=status_class),
+                    html.Span(f"{confidence*100:.0f}%", className="doc-confidence"),
+                ], className="document-row")
+            )
+        
+        history_content = html.Div(history_rows)
+    
+    return (str(total), str(approved), str(review), str(rejected), history_content)
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # APPLICATION ENTRY POINT
