@@ -1895,11 +1895,11 @@ dash_app.layout = html.Div([
             html.Div(id="verdict-banner", className="verdict-banner", 
                     style={"display": "none"}),
             
-            # Confidence Gauge Chart
+            # Confidence Gauge Chart (hidden during processing)
             html.Div([
                 dcc.Graph(id="confidence-gauge", className="gauge-chart", 
                          config={"displayModeBar": False}),
-            ], className="gauge-container"),
+            ], id="gauge-container", className="gauge-container", style={"display": "block"}),
             
             # ───────────────────────────────────────────────────────────────
             # Processing Flow Visualization (NEW!)
@@ -2325,6 +2325,9 @@ dash_app.layout = html.Div([
                 ], className="history-actions"),
             ], className="history-header"),
             
+            # Cleanup Status Message (for SAP DOX document deletion feedback)
+            html.Div(id="cleanup-status-message", className="cleanup-status-message"),
+            
             # Status Filter Buttons
             html.Div([
                 html.Button([
@@ -2548,7 +2551,7 @@ def toggle_cleanup_dialog(cleanup_clicks, cancel_clicks):
 @dash_app.callback(
     [Output("cleanup-trigger", "data"),
      Output("cleanup-dialog", "style", allow_duplicate=True),
-     Output("upload-status", "children", allow_duplicate=True)],
+     Output("cleanup-status-message", "children")],
     Input("cleanup-confirm", "n_clicks"),
     prevent_initial_call=True
 )
@@ -2609,6 +2612,7 @@ def confirm_cleanup(n_clicks):
      Output("progress-container", "style"),
      Output("upload-pdf", "disabled"),
      Output("verdict-banner", "style", allow_duplicate=True),
+     Output("gauge-container", "style", allow_duplicate=True),
      Output("confidence-gauge", "figure", allow_duplicate=True),
      Output("explainability-summary", "children", allow_duplicate=True),
      Output("table-mandatory", "data", allow_duplicate=True),
@@ -2653,7 +2657,8 @@ def start_processing(content, filename, options_value_approx, options_value_vali
             "❌ SAP DOX not configured. Please check your settings.",
             {"display": "none"},  # Hide progress bar
             False, # Enable upload button
-            {"display": "none"},
+            {"display": "none"},  # Hide verdict banner
+            {"display": "block"},  # Show gauge container (for error state)
             go.Figure(),
             no_update,
             [],
@@ -2688,6 +2693,7 @@ def start_processing(content, filename, options_value_approx, options_value_vali
             {"display": "none"}, 
             False,
             {"display": "none"},
+            {"display": "block"},  # Show gauge container (for error state)
             go.Figure(),
             no_update,
             [],
@@ -2758,6 +2764,7 @@ def start_processing(content, filename, options_value_approx, options_value_vali
         {"display": "block"},  # Show progress bar
         True,    # Disable upload button during processing
         {"display": "none"},  # Hide verdict banner
+        {"display": "none"},  # Hide gauge container during processing
         empty_gauge,          # Clear gauge chart
         html.Div([
             html.Span(className="sap-icon sap-icon--processing sap-icon--lg", style={"marginRight": "10px", "animation": "spin 1s linear infinite", "color": "var(--sap-brand-blue)"}),
@@ -3153,6 +3160,7 @@ def poll_job_status(n_intervals, job_id):
 @dash_app.callback(
     [Output("verdict-banner", "children"),
      Output("verdict-banner", "style"),
+     Output("gauge-container", "style"),
      Output("confidence-gauge", "figure"),
      Output("explainability-summary", "children"),
      Output("table-mandatory", "data"),
@@ -3453,6 +3461,7 @@ def update_results(job_data):
     return (
         verdict_text,
         verdict_style,
+        {"display": "block"},           # Show gauge container when results ready
         gauge_fig,
         summary,
         visible_df.to_dict("records"),  # Mandatory fields table data
@@ -4057,7 +4066,11 @@ def load_business_rules(tab_click, reset_click):
 def delete_rule(n_clicks_list, ids):
     """Delete a business rule when the delete button is clicked"""
     ctx = callback_context
-    if not ctx.triggered or not any(n_clicks_list):
+    if not ctx.triggered:
+        raise PreventUpdate
+    
+    # Check if any button was actually clicked (not just initialized)
+    if not n_clicks_list or not any(click for click in n_clicks_list if click):
         raise PreventUpdate
     
     # Find which button was clicked
@@ -4076,15 +4089,69 @@ def delete_rule(n_clicks_list, ids):
     
     if field_name and field_name in CONFIG.get("validation_rules", {}):
         del CONFIG["validation_rules"][field_name]
-        # Optionally save to config file
+        # Save to config file
         try:
             with open("config.json", "w") as f:
                 json.dump(CONFIG, f, indent=2)
         except Exception as e:
             print(f"Error saving config: {e}")
     
-    # Reload and return updated rules list
-    return load_business_rules.__wrapped__(None, None)
+    # Regenerate rules list
+    validation_rules = CONFIG.get("validation_rules", {})
+    
+    if not validation_rules:
+        return html.Div([
+            html.Span(className="sap-icon sap-icon--rules sap-icon--xxl"),
+            html.Div("No business rules configured", className="history-empty-text"),
+            html.Div("Add rules to enable validation", className="history-empty-subtext"),
+        ], className="empty-state")
+    
+    rule_items = []
+    for field_name_iter, rule in validation_rules.items():
+        rule_type = rule.get("type", "unknown")
+        error_msg = rule.get("error_message", "Validation failed")
+        
+        if rule_type == "date_age":
+            max_months = rule.get("max_age_months", 6)
+            details = f"Maximum age: {max_months} months"
+        elif rule_type == "whitelist":
+            allowed = rule.get("allowed_values", [])
+            details = f"{len(allowed)} allowed values"
+        else:
+            details = "Custom rule"
+        
+        rule_items.append(
+            html.Div([
+                html.Div([
+                    html.Div([
+                        html.Span(className="sap-icon sap-icon--rules"),
+                        html.Span(f"{FRIENDLY_LABELS.get(field_name_iter, field_name_iter)}", style={"marginLeft": "8px"})
+                    ], className="rule-card-title"),
+                    html.Div([
+                        html.Span(rule_type.upper(), className=f"rule-type-badge {rule_type}"),
+                        html.Button([
+                            html.Span(className="sap-icon sap-icon--delete sap-icon--sm")
+                        ], id={"type": "delete-rule-btn", "index": field_name_iter}, className="rule-delete-btn", n_clicks=0, title="Delete Rule"),
+                    ], className="rule-card-actions"),
+                ], className="rule-card-header"),
+                html.Div([
+                    html.Div([
+                        html.Span("Rule Type:", className="rule-param-label"),
+                        html.Span(rule_type.replace("_", " ").title(), className="rule-param-value"),
+                    ], className="rule-param"),
+                    html.Div([
+                        html.Span("Details:", className="rule-param-label"),
+                        html.Span(details, className="rule-param-value"),
+                    ], className="rule-param"),
+                    html.Div([
+                        html.Span("Error Message:", className="rule-param-label"),
+                        html.Span(error_msg, className="rule-param-value"),
+                    ], className="rule-param"),
+                ], className="rule-card-body"),
+            ], className="rule-card")
+        )
+    
+    return rule_items
 
 
 # Callback to toggle Add Rule modal
